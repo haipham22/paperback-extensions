@@ -154,7 +154,7 @@ export class Vcomic extends Source {
     })
   }
 
-  async getHomePageSections(sectionCallback: (section: HomeSection) => void): Promise<void> {
+  override async getHomePageSections(sectionCallback: (section: HomeSection) => void): Promise<void> {
     const hot: HomeSection = createHomeSection({
       id: HomePage.TOP_COMIC,
       title: 'TRUYỆN ĐỀ CỬ',
@@ -227,7 +227,7 @@ export class Vcomic extends Source {
       })
   }
 
-  async getViewMoreItems(homepageSectionId: string, metadata: any): Promise<PagedResults> {
+  override async getViewMoreItems(homepageSectionId: string, metadata: any): Promise<PagedResults> {
     let page: number = metadata?.page ?? 1
     let param = ''
     let url = ''
@@ -257,7 +257,6 @@ export class Vcomic extends Source {
   }
 
   async getSearchResults(query: SearchRequest, metadata: any): Promise<PagedResults> {
-    let page = metadata?.page ?? 1
     const request = createRequestObject({
       url: encodeURI(`${DOMAIN}/app/manga/controllers/cont.suggestSearch.php?q=${query.title}`),
       method: 'GET',
