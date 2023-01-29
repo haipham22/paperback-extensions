@@ -1,0 +1,38 @@
+{
+  "name": "paperback-extensions",
+  "version": "2.0.1",
+  "homepage": "https://github.com/haipham22/paperback-extensions/",
+  "description": "Vietnamese sources for Paperback",
+  "repositoryName": "Paperback create by haipham22",
+  "noAddToPaperbackButton": false,
+  "baseURL": "https://haipham22.github.io/paperback-extensions/",
+  "scripts": {
+    "start": "tsc && node dist/api.js",
+    "build": "tsc",
+    "test": "node_modules/.bin/mocha --timeout 300000 -r ts-node/register src/**/*.test.ts",
+    "coverage": "nyc -r lcov -e .ts -x \"*.test.ts\" npm run test",
+    "bundle": "paperback bundle",
+    "serve": "paperback serve -p 8000",
+    "test2": "paperback test",
+    "prepare": "husky install"
+  },
+  "author": "haipham22",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/cheerio": "^0.22.31",
+    "@typescript-eslint/eslint-plugin": "^5.11.0",
+    "@typescript-eslint/parser": "^5.11.0",
+    "eslint": "^7.27.0",
+    "eslint-config-prettier": "^8.6.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-modules-newline": "^0.0.6",
+    "husky": "^8.0.3",
+    "prettier": "^2.8.3",
+    "typescript": "^4.7.2"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.12",
+    "paperback-cli": "^2.0.0-alpha.13",
+    "paperback-extensions-common": "^5.0.0-alpha.5"
+  }
+}

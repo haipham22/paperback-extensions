@@ -1,0 +1,6 @@
+/node_modules
+/tmp
+/bundles
+/dist
+/.idea
+/temp_build
