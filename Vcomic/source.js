@@ -1357,6 +1357,7 @@ function convertTime(timeAgo) {
             let split = timeAgo.split(' ');
             let H = split[0]; //vd => 21:08
             let D = split[1]; //vd => 25/08
+            // @ts-ignore
             let fixD = D.split('/');
             let finalD = fixD[1] + '/' + fixD[0] + '/' + new Date().getFullYear();
             time = new Date(finalD + ' ' + H);

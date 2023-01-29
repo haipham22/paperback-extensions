@@ -1,0 +1,1058 @@
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.Sources = f()}})(function(){var define,module,exports;return (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+"use strict";
+/**
+ * Request objects hold information for a particular source (see sources for example)
+ * This allows us to to use a generic api to make the calls against any source
+ */
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.urlEncodeObject = exports.convertTime = exports.Source = void 0;
+class Source {
+    constructor(cheerio) {
+        this.cheerio = cheerio;
+    }
+    /**
+     * @deprecated use {@link Source.getSearchResults getSearchResults} instead
+     */
+    searchRequest(query, metadata) {
+        return this.getSearchResults(query, metadata);
+    }
+    /**
+     * @deprecated use {@link Source.getSearchTags} instead
+     */
+    async getTags() {
+        // @ts-ignore
+        return this.getSearchTags?.();
+    }
+}
+exports.Source = Source;
+// Many sites use '[x] time ago' - Figured it would be good to handle these cases in general
+function convertTime(timeAgo) {
+    let time;
+    let trimmed = Number((/\d*/.exec(timeAgo) ?? [])[0]);
+    trimmed = (trimmed == 0 && timeAgo.includes('a')) ? 1 : trimmed;
+    if (timeAgo.includes('minutes')) {
+        time = new Date(Date.now() - trimmed * 60000);
+    }
+    else if (timeAgo.includes('hours')) {
+        time = new Date(Date.now() - trimmed * 3600000);
+    }
+    else if (timeAgo.includes('days')) {
+        time = new Date(Date.now() - trimmed * 86400000);
+    }
+    else if (timeAgo.includes('year') || timeAgo.includes('years')) {
+        time = new Date(Date.now() - trimmed * 31556952000);
+    }
+    else {
+        time = new Date(Date.now());
+    }
+    return time;
+}
+exports.convertTime = convertTime;
+/**
+ * When a function requires a POST body, it always should be defined as a JsonObject
+ * and then passed through this function to ensure that it's encoded properly.
+ * @param obj
+ */
+function urlEncodeObject(obj) {
+    let ret = {};
+    for (const entry of Object.entries(obj)) {
+        ret[encodeURIComponent(entry[0])] = encodeURIComponent(entry[1]);
+    }
+    return ret;
+}
+exports.urlEncodeObject = urlEncodeObject;
+
+},{}],2:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Tracker = void 0;
+class Tracker {
+    constructor(cheerio) {
+        this.cheerio = cheerio;
+    }
+}
+exports.Tracker = Tracker;
+
+},{}],3:[function(require,module,exports){
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+__exportStar(require("./Source"), exports);
+__exportStar(require("./Tracker"), exports);
+
+},{"./Source":1,"./Tracker":2}],4:[function(require,module,exports){
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+__exportStar(require("./base"), exports);
+__exportStar(require("./models"), exports);
+
+},{"./base":3,"./models":47}],5:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+
+},{}],6:[function(require,module,exports){
+arguments[4][5][0].apply(exports,arguments)
+},{"dup":5}],7:[function(require,module,exports){
+arguments[4][5][0].apply(exports,arguments)
+},{"dup":5}],8:[function(require,module,exports){
+arguments[4][5][0].apply(exports,arguments)
+},{"dup":5}],9:[function(require,module,exports){
+arguments[4][5][0].apply(exports,arguments)
+},{"dup":5}],10:[function(require,module,exports){
+arguments[4][5][0].apply(exports,arguments)
+},{"dup":5}],11:[function(require,module,exports){
+arguments[4][5][0].apply(exports,arguments)
+},{"dup":5}],12:[function(require,module,exports){
+arguments[4][5][0].apply(exports,arguments)
+},{"dup":5}],13:[function(require,module,exports){
+arguments[4][5][0].apply(exports,arguments)
+},{"dup":5}],14:[function(require,module,exports){
+arguments[4][5][0].apply(exports,arguments)
+},{"dup":5}],15:[function(require,module,exports){
+arguments[4][5][0].apply(exports,arguments)
+},{"dup":5}],16:[function(require,module,exports){
+arguments[4][5][0].apply(exports,arguments)
+},{"dup":5}],17:[function(require,module,exports){
+arguments[4][5][0].apply(exports,arguments)
+},{"dup":5}],18:[function(require,module,exports){
+arguments[4][5][0].apply(exports,arguments)
+},{"dup":5}],19:[function(require,module,exports){
+arguments[4][5][0].apply(exports,arguments)
+},{"dup":5}],20:[function(require,module,exports){
+arguments[4][5][0].apply(exports,arguments)
+},{"dup":5}],21:[function(require,module,exports){
+arguments[4][5][0].apply(exports,arguments)
+},{"dup":5}],22:[function(require,module,exports){
+arguments[4][5][0].apply(exports,arguments)
+},{"dup":5}],23:[function(require,module,exports){
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+__exportStar(require("./Button"), exports);
+__exportStar(require("./Form"), exports);
+__exportStar(require("./Header"), exports);
+__exportStar(require("./InputField"), exports);
+__exportStar(require("./Label"), exports);
+__exportStar(require("./Link"), exports);
+__exportStar(require("./MultilineLabel"), exports);
+__exportStar(require("./NavigationButton"), exports);
+__exportStar(require("./OAuthButton"), exports);
+__exportStar(require("./Section"), exports);
+__exportStar(require("./Select"), exports);
+__exportStar(require("./Switch"), exports);
+__exportStar(require("./WebViewButton"), exports);
+__exportStar(require("./FormRow"), exports);
+__exportStar(require("./Stepper"), exports);
+
+},{"./Button":8,"./Form":9,"./FormRow":10,"./Header":11,"./InputField":12,"./Label":13,"./Link":14,"./MultilineLabel":15,"./NavigationButton":16,"./OAuthButton":17,"./Section":18,"./Select":19,"./Stepper":20,"./Switch":21,"./WebViewButton":22}],24:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.HomeSectionType = void 0;
+var HomeSectionType;
+(function (HomeSectionType) {
+    HomeSectionType["singleRowNormal"] = "singleRowNormal";
+    HomeSectionType["singleRowLarge"] = "singleRowLarge";
+    HomeSectionType["doubleRow"] = "doubleRow";
+    HomeSectionType["featured"] = "featured";
+})(HomeSectionType = exports.HomeSectionType || (exports.HomeSectionType = {}));
+
+},{}],25:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.LanguageCode = void 0;
+var LanguageCode;
+(function (LanguageCode) {
+    LanguageCode["UNKNOWN"] = "_unknown";
+    LanguageCode["BENGALI"] = "bd";
+    LanguageCode["BULGARIAN"] = "bg";
+    LanguageCode["BRAZILIAN"] = "br";
+    LanguageCode["CHINEESE"] = "cn";
+    LanguageCode["CZECH"] = "cz";
+    LanguageCode["GERMAN"] = "de";
+    LanguageCode["DANISH"] = "dk";
+    LanguageCode["ENGLISH"] = "gb";
+    LanguageCode["SPANISH"] = "es";
+    LanguageCode["FINNISH"] = "fi";
+    LanguageCode["FRENCH"] = "fr";
+    LanguageCode["WELSH"] = "gb";
+    LanguageCode["GREEK"] = "gr";
+    LanguageCode["CHINEESE_HONGKONG"] = "hk";
+    LanguageCode["HUNGARIAN"] = "hu";
+    LanguageCode["INDONESIAN"] = "id";
+    LanguageCode["ISRELI"] = "il";
+    LanguageCode["INDIAN"] = "in";
+    LanguageCode["IRAN"] = "ir";
+    LanguageCode["ITALIAN"] = "it";
+    LanguageCode["JAPANESE"] = "jp";
+    LanguageCode["KOREAN"] = "kr";
+    LanguageCode["LITHUANIAN"] = "lt";
+    LanguageCode["MONGOLIAN"] = "mn";
+    LanguageCode["MEXIAN"] = "mx";
+    LanguageCode["MALAY"] = "my";
+    LanguageCode["DUTCH"] = "nl";
+    LanguageCode["NORWEGIAN"] = "no";
+    LanguageCode["PHILIPPINE"] = "ph";
+    LanguageCode["POLISH"] = "pl";
+    LanguageCode["PORTUGUESE"] = "pt";
+    LanguageCode["ROMANIAN"] = "ro";
+    LanguageCode["RUSSIAN"] = "ru";
+    LanguageCode["SANSKRIT"] = "sa";
+    LanguageCode["SAMI"] = "si";
+    LanguageCode["THAI"] = "th";
+    LanguageCode["TURKISH"] = "tr";
+    LanguageCode["UKRAINIAN"] = "ua";
+    LanguageCode["VIETNAMESE"] = "vn";
+})(LanguageCode = exports.LanguageCode || (exports.LanguageCode = {}));
+
+},{}],26:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.MangaStatus = void 0;
+var MangaStatus;
+(function (MangaStatus) {
+    MangaStatus[MangaStatus["ONGOING"] = 1] = "ONGOING";
+    MangaStatus[MangaStatus["COMPLETED"] = 0] = "COMPLETED";
+    MangaStatus[MangaStatus["UNKNOWN"] = 2] = "UNKNOWN";
+    MangaStatus[MangaStatus["ABANDONED"] = 3] = "ABANDONED";
+    MangaStatus[MangaStatus["HIATUS"] = 4] = "HIATUS";
+})(MangaStatus = exports.MangaStatus || (exports.MangaStatus = {}));
+
+},{}],27:[function(require,module,exports){
+arguments[4][5][0].apply(exports,arguments)
+},{"dup":5}],28:[function(require,module,exports){
+arguments[4][5][0].apply(exports,arguments)
+},{"dup":5}],29:[function(require,module,exports){
+arguments[4][5][0].apply(exports,arguments)
+},{"dup":5}],30:[function(require,module,exports){
+arguments[4][5][0].apply(exports,arguments)
+},{"dup":5}],31:[function(require,module,exports){
+arguments[4][5][0].apply(exports,arguments)
+},{"dup":5}],32:[function(require,module,exports){
+arguments[4][5][0].apply(exports,arguments)
+},{"dup":5}],33:[function(require,module,exports){
+arguments[4][5][0].apply(exports,arguments)
+},{"dup":5}],34:[function(require,module,exports){
+arguments[4][5][0].apply(exports,arguments)
+},{"dup":5}],35:[function(require,module,exports){
+arguments[4][5][0].apply(exports,arguments)
+},{"dup":5}],36:[function(require,module,exports){
+arguments[4][5][0].apply(exports,arguments)
+},{"dup":5}],37:[function(require,module,exports){
+arguments[4][5][0].apply(exports,arguments)
+},{"dup":5}],38:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.SearchOperator = void 0;
+var SearchOperator;
+(function (SearchOperator) {
+    SearchOperator["AND"] = "AND";
+    SearchOperator["OR"] = "OR";
+})(SearchOperator = exports.SearchOperator || (exports.SearchOperator = {}));
+
+},{}],39:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ContentRating = void 0;
+/**
+ * A content rating to be attributed to each source.
+ */
+var ContentRating;
+(function (ContentRating) {
+    ContentRating["EVERYONE"] = "EVERYONE";
+    ContentRating["MATURE"] = "MATURE";
+    ContentRating["ADULT"] = "ADULT";
+})(ContentRating = exports.ContentRating || (exports.ContentRating = {}));
+
+},{}],40:[function(require,module,exports){
+arguments[4][5][0].apply(exports,arguments)
+},{"dup":5}],41:[function(require,module,exports){
+arguments[4][5][0].apply(exports,arguments)
+},{"dup":5}],42:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.TagType = void 0;
+/**
+ * An enumerator which {@link SourceTags} uses to define the color of the tag rendered on the website.
+ * Five types are available: blue, green, grey, yellow and red, the default one is blue.
+ * Common colors are red for (Broken), yellow for (+18), grey for (Country-Proof)
+ */
+var TagType;
+(function (TagType) {
+    TagType["BLUE"] = "default";
+    TagType["GREEN"] = "success";
+    TagType["GREY"] = "info";
+    TagType["YELLOW"] = "warning";
+    TagType["RED"] = "danger";
+})(TagType = exports.TagType || (exports.TagType = {}));
+
+},{}],43:[function(require,module,exports){
+arguments[4][5][0].apply(exports,arguments)
+},{"dup":5}],44:[function(require,module,exports){
+arguments[4][5][0].apply(exports,arguments)
+},{"dup":5}],45:[function(require,module,exports){
+arguments[4][5][0].apply(exports,arguments)
+},{"dup":5}],46:[function(require,module,exports){
+arguments[4][5][0].apply(exports,arguments)
+},{"dup":5}],47:[function(require,module,exports){
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+__exportStar(require("./Chapter"), exports);
+__exportStar(require("./HomeSection"), exports);
+__exportStar(require("./DynamicUI"), exports);
+__exportStar(require("./ChapterDetails"), exports);
+__exportStar(require("./Manga"), exports);
+__exportStar(require("./MangaTile"), exports);
+__exportStar(require("./RequestObject"), exports);
+__exportStar(require("./SearchRequest"), exports);
+__exportStar(require("./TagSection"), exports);
+__exportStar(require("./SourceTag"), exports);
+__exportStar(require("./Languages"), exports);
+__exportStar(require("./Constants"), exports);
+__exportStar(require("./MangaUpdate"), exports);
+__exportStar(require("./PagedResults"), exports);
+__exportStar(require("./ResponseObject"), exports);
+__exportStar(require("./RequestManager"), exports);
+__exportStar(require("./RequestHeaders"), exports);
+__exportStar(require("./SourceInfo"), exports);
+__exportStar(require("./SourceStateManager"), exports);
+__exportStar(require("./RequestInterceptor"), exports);
+__exportStar(require("./TrackedManga"), exports);
+__exportStar(require("./SourceManga"), exports);
+__exportStar(require("./TrackedMangaChapterReadAction"), exports);
+__exportStar(require("./TrackerActionQueue"), exports);
+__exportStar(require("./SearchField"), exports);
+__exportStar(require("./RawData"), exports);
+__exportStar(require("./SearchFilter"), exports);
+
+},{"./Chapter":5,"./ChapterDetails":6,"./Constants":7,"./DynamicUI":23,"./HomeSection":24,"./Languages":25,"./Manga":26,"./MangaTile":27,"./MangaUpdate":28,"./PagedResults":29,"./RawData":30,"./RequestHeaders":31,"./RequestInterceptor":32,"./RequestManager":33,"./RequestObject":34,"./ResponseObject":35,"./SearchField":36,"./SearchFilter":37,"./SearchRequest":38,"./SourceInfo":39,"./SourceManga":40,"./SourceStateManager":41,"./SourceTag":42,"./TagSection":43,"./TrackedManga":44,"./TrackedMangaChapterReadAction":45,"./TrackerActionQueue":46}],48:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.NetTruyen = exports.NetTruyenInfo = exports.isLastPage = void 0;
+const paperback_extensions_common_1 = require("paperback-extensions-common");
+const NetTruyenParser_1 = require("./NetTruyenParser");
+const enum_helper_1 = require("../enum_helper");
+const DOMAIN = 'https://nettruyenup.com';
+const isLastPage = ($) => {
+    const current = $('ul.pagination > li.active > a').text();
+    let total = $('ul.pagination > li.PagerSSCCells:last-child').text();
+    if (current) {
+        total = total ?? '';
+        return +total === +current; //+ => convert value to number
+    }
+    return true;
+};
+exports.isLastPage = isLastPage;
+exports.NetTruyenInfo = {
+    version: '1.0.0',
+    name: 'NetTruyen',
+    icon: 'icon.png',
+    author: 'haipham22',
+    authorWebsite: 'https://github.com/haipham22',
+    description: 'Extension that pulls manga from NetTruyen.',
+    websiteBaseURL: DOMAIN,
+    contentRating: paperback_extensions_common_1.ContentRating.MATURE,
+    sourceTags: [
+        {
+            text: 'Recommended',
+            type: paperback_extensions_common_1.TagType.BLUE,
+        },
+        {
+            text: 'Notifications',
+            type: paperback_extensions_common_1.TagType.GREEN,
+        },
+    ],
+};
+class NetTruyen extends paperback_extensions_common_1.Source {
+    constructor() {
+        super(...arguments);
+        this.parser = new NetTruyenParser_1.Parser();
+        this.requestManager = createRequestManager({
+            requestsPerSecond: 5,
+            requestTimeout: 20000,
+            interceptor: {
+                interceptRequest: async (request) => {
+                    request.headers = {
+                        ...(request.headers ?? {}),
+                        ...{
+                            referer: DOMAIN,
+                        },
+                    };
+                    return request;
+                },
+                interceptResponse: async (response) => {
+                    return response;
+                },
+            },
+        });
+    }
+    getMangaShareUrl(mangaId) {
+        return `${DOMAIN}/truyen-tranh/${mangaId}`;
+    }
+    async getMangaDetails(mangaId) {
+        const url = `${DOMAIN}/truyen-tranh/${mangaId}`;
+        const request = createRequestObject({
+            url: url,
+            method: 'GET',
+        });
+        const { data } = await this.requestManager.schedule(request, 1);
+        return this.parser.parseMangaDetails(this.cheerio.load(data), mangaId);
+    }
+    async getChapters(mangaId) {
+        const url = `${DOMAIN}/truyen-tranh/${mangaId}`;
+        const request = createRequestObject({
+            url: url,
+            method: 'GET',
+        });
+        const { data } = await this.requestManager.schedule(request, 1);
+        return this.parser.parseChapterList(this.cheerio.load(data), mangaId);
+    }
+    async getChapterDetails(mangaId, chapterId) {
+        const request = createRequestObject({
+            url: chapterId,
+            method: 'GET',
+        });
+        const { data } = await this.requestManager.schedule(request, 1);
+        const pages = this.parser.parseChapterDetails(this.cheerio.load(data));
+        return createChapterDetails({
+            pages: pages,
+            longStrip: false,
+            id: chapterId,
+            mangaId: mangaId,
+        });
+    }
+    async getSearchResults(query, metadata) {
+        let page = metadata?.page ?? 1;
+        const search = {
+            genres: '',
+            gender: '-1',
+            status: '-1',
+            minchapter: '1',
+            sort: '0',
+        };
+        const tags = query.includedTags?.map(tag => tag.id) ?? [];
+        const genres = [];
+        tags.map(value => {
+            if (value.indexOf('.') === -1) {
+                genres.push(value);
+            }
+            else {
+                switch (value.split('.')[0]) {
+                    case 'minchapter':
+                        search.minchapter = value.split('.')[1];
+                        break;
+                    case 'gender':
+                        search.gender = value.split('.')[1];
+                        break;
+                    case 'sort':
+                        search.sort = value.split('.')[1];
+                        break;
+                    case 'status':
+                        search.status = value.split('.')[1];
+                        break;
+                }
+            }
+        });
+        search.genres = (genres ?? []).join(',');
+        const url = `${DOMAIN}`;
+        const request = createRequestObject({
+            url: query.title ? url + '/tim-truyen' : url + '/tim-truyen-nang-cao',
+            method: 'GET',
+            param: encodeURI(`?keyword=${query.title ?? ''}&genres=${search.genres}&gender=${search.gender}&status=${search.status}&minchapter=${search.minchapter}&sort=${search.sort}&page=${page}`),
+        });
+        const data = await this.requestManager.schedule(request, 1);
+        let $ = this.cheerio.load(data.data);
+        const tiles = this.parser.parseSearchResults($);
+        metadata = !(0, exports.isLastPage)($) ? { page: page + 1 } : undefined;
+        return createPagedResults({
+            results: tiles,
+            metadata,
+        });
+    }
+    async getHomePageSections(sectionCallback) {
+        let featured = createHomeSection({
+            id: enum_helper_1.HomePageType.FEATURED,
+            title: 'Truyện Đề Cử',
+            type: paperback_extensions_common_1.HomeSectionType.featured,
+        });
+        let viewest = createHomeSection({
+            id: enum_helper_1.HomePageType.VIEWEST,
+            title: 'Truyện Xem Nhiều Nhất',
+            view_more: true,
+        });
+        let hot = createHomeSection({
+            id: enum_helper_1.HomePageType.HOT,
+            title: 'Truyện Hot Nhất',
+            view_more: true,
+        });
+        let newUpdated = createHomeSection({
+            id: enum_helper_1.HomePageType.NEW_UPDATED,
+            title: 'Truyện Mới Cập Nhật',
+            view_more: true,
+        });
+        let newAdded = createHomeSection({
+            id: enum_helper_1.HomePageType.NEW_ADDED,
+            title: 'Truyện Mới Thêm Gần Đây',
+            view_more: true,
+        });
+        let full = createHomeSection({
+            id: enum_helper_1.HomePageType.FULL,
+            title: 'Truyện Đã Hoàn Thành',
+            view_more: true,
+        });
+        //Load empty sections
+        sectionCallback(featured);
+        sectionCallback(viewest);
+        sectionCallback(hot);
+        sectionCallback(newUpdated);
+        sectionCallback(newAdded);
+        sectionCallback(full);
+        ///Get the section data
+        //Featured
+        let request = createRequestObject({
+            url: DOMAIN,
+            method: 'GET',
+        });
+        let data = await this.requestManager.schedule(request, 1);
+        let homePageHtml = this.cheerio.load(data);
+        featured.items = this.parser.parseFeaturedSection(homePageHtml);
+        sectionCallback(featured);
+        //View
+        request = createRequestObject({
+            url: `${DOMAIN}/tim-truyen`,
+            method: 'GET',
+            param: '?status=-1&sort=10',
+        });
+        data = await this.requestManager.schedule(request, 1);
+        viewest.items = this.parser.parsePopularSection(this.cheerio.load(data.data));
+        sectionCallback(viewest);
+        //Hot
+        request = createRequestObject({
+            url: `${DOMAIN}/hot`,
+            method: 'GET',
+        });
+        data = await this.requestManager.schedule(request, 1);
+        let $ = this.cheerio.load(data.data);
+        hot.items = this.parser.parseHotSection($);
+        sectionCallback(hot);
+        //New Updates
+        newUpdated.items = this.parser.parseNewUpdatedSection(homePageHtml);
+        sectionCallback(newUpdated);
+        //New added
+        request = createRequestObject({
+            url: `${DOMAIN}/tim-truyen`,
+            method: 'GET',
+            param: '?status=-1&sort=15',
+        });
+        data = await this.requestManager.schedule(request, 1);
+        newAdded.items = this.parser.parseNewAddedSection(this.cheerio.load(data.data));
+        sectionCallback(newAdded);
+        //Full
+        request = createRequestObject({
+            url: `${DOMAIN}/truyen-full`,
+            method: 'GET',
+        });
+        data = await this.requestManager.schedule(request, 1);
+        full.items = this.parser.parseFullSection(this.cheerio.load(data.data));
+        sectionCallback(full);
+    }
+    async getViewMoreItems(homepageSectionId, metadata) {
+        let page = metadata?.page ?? 1;
+        let param = '';
+        let url = '';
+        switch (homepageSectionId) {
+            case enum_helper_1.HomePageType.VIEWEST:
+                param = `?status=-1&sort=10&page=${page}`;
+                url = `tim-truyen`;
+                break;
+            case enum_helper_1.HomePageType.HOT:
+                param = `?page=${page}`;
+                url = `hot`;
+                break;
+            case enum_helper_1.HomePageType.NEW_UPDATED:
+                param = `?page=${page}`;
+                url = DOMAIN;
+                break;
+            case enum_helper_1.HomePageType.NEW_ADDED:
+                param = `?status=-1&sort=15&page=${page}`;
+                url = `tim-truyen`;
+                break;
+            case enum_helper_1.HomePageType.FULL:
+                param = `?page=${page}`;
+                url = `truyen-full`;
+                break;
+            default:
+                throw new Error("Requested to getViewMoreItems for a section ID which doesn't exist");
+        }
+        const request = createRequestObject({
+            url: `${DOMAIN}/${url}`,
+            method: 'GET',
+            param,
+        });
+        const response = await this.requestManager.schedule(request, 1);
+        const $ = this.cheerio.load(response.data);
+        const manga = this.parser.parseViewMoreItems($);
+        metadata = (0, exports.isLastPage)($) ? undefined : { page: page + 1 };
+        return createPagedResults({
+            results: manga,
+            metadata,
+        });
+    }
+    async getSearchTags() {
+        const url = `${DOMAIN}/tim-truyen-nang-cao`;
+        const request = createRequestObject({
+            url: url,
+            method: 'GET',
+        });
+        const response = await this.requestManager.schedule(request, 1);
+        const $ = this.cheerio.load(response.data);
+        return this.parser.parseTags($);
+    }
+    async filterUpdatedManga(mangaUpdatesFoundCallback, time, ids) {
+        const updateManga = [];
+        const pages = 10;
+        for (let i = 1; i < pages + 1; i++) {
+            const request = createRequestObject({
+                url: `${DOMAIN}/?page=${i}`,
+                method: 'GET',
+            });
+            const response = await this.requestManager.schedule(request, 1);
+            const $ = this.cheerio.load(response.data);
+            // let x = $('time.small').text().trim();
+            // let y = x.split("lúc:")[1].replace(']', '').trim().split(' ');
+            // let z = y[1].split('/');
+            // const timeUpdate = new Date(z[1] + '/' + z[0] + '/' + z[2] + ' ' + y[0]);
+            // updateManga.push({
+            //     id: item,
+            //     time: timeUpdate
+            // })
+            for (let manga of $('div.item', 'div.row').toArray()) {
+                const id = $('figure.clearfix > div.image > a', manga).attr('href')?.split('/').pop();
+                const time = $('figure.clearfix > figcaption > ul > li.chapter:nth-of-type(1) > i', manga).last().text().trim();
+                updateManga.push({
+                    id: id,
+                    time: time,
+                });
+            }
+        }
+        const returnObject = this.parser.parseUpdatedManga(updateManga, time, ids);
+        mangaUpdatesFoundCallback(createMangaUpdates(returnObject));
+    }
+}
+exports.NetTruyen = NetTruyen;
+
+},{"../enum_helper":50,"./NetTruyenParser":49,"paperback-extensions-common":4}],49:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Parser = void 0;
+const paperback_extensions_common_1 = require("paperback-extensions-common");
+class Parser {
+    convertTime(timeAgo) {
+        let time;
+        let trimmed = Number((/\d*/.exec(timeAgo) ?? [])[0]);
+        trimmed = trimmed == 0 && timeAgo.includes('a') ? 1 : trimmed;
+        if (timeAgo.includes('giây') || timeAgo.includes('secs')) {
+            time = new Date(Date.now() - trimmed * 1000); // => mili giây (1000 ms = 1s)
+        }
+        else if (timeAgo.includes('phút')) {
+            time = new Date(Date.now() - trimmed * 60000);
+        }
+        else if (timeAgo.includes('giờ')) {
+            time = new Date(Date.now() - trimmed * 3600000);
+        }
+        else if (timeAgo.includes('ngày')) {
+            time = new Date(Date.now() - trimmed * 86400000);
+        }
+        else if (timeAgo.includes('năm')) {
+            time = new Date(Date.now() - trimmed * 31556952000);
+        }
+        else {
+            if (timeAgo.includes(':')) {
+                let split = timeAgo.split(' ');
+                let H = split[0]; //vd => 21:08
+                let D = split[1]; //vd => 25/08
+                let fixD = D.split('/');
+                let finalD = fixD[1] + '/' + fixD[0] + '/' + new Date().getFullYear();
+                time = new Date(finalD + ' ' + H);
+            }
+            else {
+                let split = timeAgo.split('/'); //vd => 05/12/18
+                time = new Date(split[1] + '/' + split[0] + '/' + '20' + split[2]);
+            }
+        }
+        return time;
+    }
+    parseMangaDetails($, mangaId) {
+        let tags = [];
+        for (let obj of $('li.kind > p.col-xs-8 > a').toArray()) {
+            const label = $(obj).text();
+            const id = $(obj).attr('href')?.split('/')[4] ?? label;
+            tags.push(createTag({
+                label: label,
+                id: id,
+            }));
+        }
+        const creator = $('ul.list-info > li.author > p.col-xs-8').text();
+        const image = 'http:' + $('div.col-image > img').attr('src');
+        return createManga({
+            id: mangaId,
+            author: creator,
+            artist: creator,
+            desc: $('div.detail-content > p').text(),
+            titles: [$('h1.title-detail').text()],
+            image: image ?? '',
+            status: $('li.status > p.col-xs-8').text().toLowerCase().includes('hoàn thành') ? 0 : 1,
+            rating: parseFloat($('span[itemprop="ratingValue"]').text()),
+            hentai: false,
+            tags: [createTagSection({ label: 'genres', tags: tags, id: '0' })],
+        });
+    }
+    parseChapterList($, mangaId) {
+        const chapters = [];
+        for (let obj of $('div.list-chapter > nav > ul > li.row:not(.heading)').toArray()) {
+            let time = $('div.col-xs-4', obj).text();
+            let group = $('div.col-xs-3', obj).text();
+            let name = $('div.chapter a', obj).text();
+            let chapNum = parseFloat($('div.chapter a', obj).text().split(' ')[1]);
+            let timeFinal = this.convertTime(time);
+            chapters.push(createChapter({
+                id: $('div.chapter a', obj).attr('href'),
+                chapNum: chapNum,
+                name: name.includes(':') ? name.split('Chapter ' + chapNum + ':')[1].trim() : '',
+                mangaId: mangaId,
+                langCode: paperback_extensions_common_1.LanguageCode.VIETNAMESE,
+                time: timeFinal,
+                group: group + ' lượt xem',
+            }));
+        }
+        return chapters;
+    }
+    parseChapterDetails($) {
+        const pages = [];
+        for (let obj of $('div.reading-detail > div.page-chapter > img').toArray()) {
+            if (!obj.attribs['data-original'])
+                continue;
+            let link = obj.attribs['data-original'];
+            if (link.indexOf('http') === -1) {
+                //nếu link ko có 'http'
+                pages.push('http:' + obj.attribs['data-original']);
+            }
+            else {
+                pages.push(link);
+            }
+        }
+        return pages;
+    }
+    parseSearchResults($) {
+        const tiles = [];
+        for (const manga of $('div.item', 'div.row').toArray()) {
+            const title = $('figure.clearfix > figcaption > h3 > a', manga).first().text();
+            const id = $('figure.clearfix > div.image > a', manga).attr('href')?.split('/').pop();
+            const image = $('figure.clearfix > div.image > a > img', manga).first().attr('data-original');
+            const subtitle = $('figure.clearfix > figcaption > ul > li.chapter:nth-of-type(1) > a', manga)
+                .last()
+                .text()
+                .trim();
+            if (!id || !title)
+                continue;
+            tiles.push(createMangaTile({
+                id: id,
+                image: !image ? 'https://i.imgur.com/GYUxEX8.png' : 'http:' + image,
+                title: createIconText({ text: title }),
+                subtitleText: createIconText({ text: subtitle }),
+            }));
+        }
+        return tiles;
+    }
+    parseTags($) {
+        //id tag đéo đc trùng nhau
+        const arrayTags = [];
+        const arrayTags2 = [];
+        const arrayTags3 = [];
+        const arrayTags4 = [];
+        const arrayTags5 = [];
+        //The loai
+        for (const tag of $('div.col-md-3.col-sm-4.col-xs-6.mrb10', 'div.col-sm-10 > div.row').toArray()) {
+            const label = $('div.genre-item', tag).text().trim();
+            const id = $('div.genre-item > span', tag).attr('data-id') ?? label;
+            if (!id || !label)
+                continue;
+            arrayTags.push({ id: id, label: label });
+        }
+        //Số lượng chapter
+        for (const tag of $('option', 'select.select-minchapter').toArray()) {
+            const label = $(tag).text().trim();
+            const id = 'minchapter.' + $(tag).attr('value') ?? label;
+            if (!id || !label)
+                continue;
+            arrayTags2.push({ id: id, label: label });
+        }
+        //Tình trạng
+        for (const tag of $('option', '.select-status').toArray()) {
+            const label = $(tag).text().trim();
+            const id = 'status.' + $(tag).attr('value') ?? label;
+            if (!id || !label)
+                continue;
+            arrayTags3.push({ id: id, label: label });
+        }
+        //Dành cho
+        for (const tag of $('option', '.select-gender').toArray()) {
+            const label = $(tag).text().trim();
+            const id = 'gender.' + $(tag).attr('value') ?? label;
+            if (!id || !label)
+                continue;
+            arrayTags4.push({ id: id, label: label });
+        }
+        //Sắp xếp theo
+        for (const tag of $('option', '.select-sort').toArray()) {
+            const label = $(tag).text().trim();
+            const id = 'sort.' + $(tag).attr('value') ?? label;
+            if (!id || !label)
+                continue;
+            arrayTags5.push({ id: id, label: label });
+        }
+        const tagSections = [
+            createTagSection({
+                id: '0',
+                label: 'Thể Loại (Có thể chọn nhiều hơn 1)',
+                tags: arrayTags.map(x => createTag(x)),
+            }),
+            createTagSection({ id: '1', label: 'Số Lượng Chapter (Chỉ chọn 1)', tags: arrayTags2.map(x => createTag(x)) }),
+            createTagSection({ id: '2', label: 'Tình Trạng (Chỉ chọn 1)', tags: arrayTags3.map(x => createTag(x)) }),
+            createTagSection({ id: '3', label: 'Dành Cho (Chỉ chọn 1)', tags: arrayTags4.map(x => createTag(x)) }),
+            createTagSection({ id: '4', label: 'Sắp xếp theo (Chỉ chọn 1)', tags: arrayTags5.map(x => createTag(x)) }),
+        ];
+        return tagSections;
+    }
+    parseFeaturedSection($) {
+        let featuredItems = [];
+        for (let manga of $('div.item', 'div.altcontent1').toArray()) {
+            const title = $('.slide-caption > h3 > a', manga).text();
+            const id = $('a', manga).attr('href')?.split('/').pop();
+            const image = $('a > img.lazyOwl', manga).attr('data-src');
+            const subtitle = $('.slide-caption > a', manga).text().trim() + ' - ' + $('.slide-caption > .time', manga).text().trim();
+            if (!id || !title)
+                continue;
+            featuredItems.push(createMangaTile({
+                id: id,
+                image: !image ? 'https://i.imgur.com/GYUxEX8.png' : 'http:' + image,
+                title: createIconText({ text: title }),
+                subtitleText: createIconText({
+                    text: subtitle,
+                }),
+            }));
+        }
+        return featuredItems;
+    }
+    parsePopularSection($) {
+        let viewestItems = [];
+        for (let manga of $('div.item', 'div.row').toArray().splice(0, 20)) {
+            const title = $('figure.clearfix > figcaption > h3 > a', manga).first().text();
+            const id = $('figure.clearfix > div.image > a', manga).attr('href')?.split('/').pop();
+            const image = $('figure.clearfix > div.image > a > img', manga).first().attr('data-original');
+            const subtitle = $('figure.clearfix > figcaption > ul > li.chapter:nth-of-type(1) > a', manga)
+                .last()
+                .text()
+                .trim();
+            if (!id || !title)
+                continue;
+            viewestItems.push(createMangaTile({
+                id: id,
+                image: !image ? 'https://i.imgur.com/GYUxEX8.png' : 'http:' + image,
+                title: createIconText({ text: title }),
+                subtitleText: createIconText({ text: subtitle }),
+            }));
+        }
+        return viewestItems;
+    }
+    parseHotSection($) {
+        const TopWeek = [];
+        for (const manga of $('div.item', 'div.row').toArray().splice(0, 20)) {
+            const title = $('figure.clearfix > figcaption > h3 > a', manga).first().text();
+            const id = $('figure.clearfix > div.image > a', manga).attr('href')?.split('/').pop();
+            const image = $('figure.clearfix > div.image > a > img', manga).first().attr('data-original');
+            const subtitle = $('figure.clearfix > figcaption > ul > li.chapter:nth-of-type(1) > a', manga)
+                .last()
+                .text()
+                .trim();
+            if (!id || !title)
+                continue;
+            TopWeek.push(createMangaTile({
+                id: id,
+                image: !image ? 'https://i.imgur.com/GYUxEX8.png' : 'http:' + image,
+                title: createIconText({ text: title }),
+                subtitleText: createIconText({ text: subtitle }),
+            }));
+        }
+        return TopWeek;
+    }
+    parseNewUpdatedSection($) {
+        let newUpdatedItems = [];
+        for (let manga of $('div.item', 'div.row').toArray().splice(0, 20)) {
+            const title = $('figure.clearfix > figcaption > h3 > a', manga).first().text();
+            const id = $('figure.clearfix > div.image > a', manga).attr('href')?.split('/').pop();
+            const image = $('figure.clearfix > div.image > a > img', manga).first().attr('data-original');
+            const subtitle = $('figure.clearfix > figcaption > ul > li.chapter:nth-of-type(1) > a', manga)
+                .last()
+                .text()
+                .trim();
+            if (!id || !title)
+                continue;
+            newUpdatedItems.push(createMangaTile({
+                id: id,
+                image: !image ? 'https://i.imgur.com/GYUxEX8.png' : 'http:' + image,
+                title: createIconText({ text: title }),
+                subtitleText: createIconText({ text: subtitle }),
+            }));
+        }
+        return newUpdatedItems;
+    }
+    parseNewAddedSection($) {
+        let newAddedItems = [];
+        for (let manga of $('div.item', 'div.row').toArray().splice(0, 20)) {
+            const title = $('figure.clearfix > figcaption > h3 > a', manga).first().text();
+            const id = $('figure.clearfix > div.image > a', manga).attr('href')?.split('/').pop();
+            const image = $('figure.clearfix > div.image > a > img', manga).first().attr('data-original');
+            const subtitle = $('figure.clearfix > figcaption > ul > li.chapter:nth-of-type(1) > a', manga)
+                .last()
+                .text()
+                .trim();
+            if (!id || !title)
+                continue;
+            newAddedItems.push(createMangaTile({
+                id: id,
+                image: !image ? 'https://i.imgur.com/GYUxEX8.png' : 'http:' + image,
+                title: createIconText({ text: title }),
+                subtitleText: createIconText({ text: subtitle }),
+            }));
+        }
+        return newAddedItems;
+    }
+    parseFullSection($) {
+        let fullItems = [];
+        for (let manga of $('div.item', 'div.row').toArray().splice(0, 20)) {
+            const title = $('figure.clearfix > figcaption > h3 > a', manga).first().text();
+            const id = $('figure.clearfix > div.image > a', manga).attr('href')?.split('/').pop();
+            const image = $('figure.clearfix > div.image > a > img', manga).first().attr('data-original');
+            const subtitle = $('figure.clearfix > figcaption > ul > li.chapter:nth-of-type(1) > a', manga)
+                .last()
+                .text()
+                .trim();
+            if (!id || !title)
+                continue;
+            fullItems.push(createMangaTile({
+                id: id,
+                image: !image ? 'https://i.imgur.com/GYUxEX8.png' : 'http:' + image,
+                title: createIconText({ text: title }),
+                subtitleText: createIconText({ text: subtitle }),
+            }));
+        }
+        return fullItems;
+    }
+    parseViewMoreItems($) {
+        const mangas = [];
+        const collectedIds = [];
+        for (const manga of $('div.item', 'div.row').toArray()) {
+            const title = $('figure.clearfix > figcaption > h3 > a', manga).first().text();
+            const id = $('figure.clearfix > div.image > a', manga).attr('href')?.split('/').pop();
+            const image = $('figure.clearfix > div.image > a > img', manga).first().attr('data-original');
+            const subtitle = $('figure.clearfix > figcaption > ul > li.chapter:nth-of-type(1) > a', manga)
+                .last()
+                .text()
+                .trim();
+            if (!id || !title)
+                continue;
+            if (!collectedIds.includes(id)) {
+                //ko push truyện trùng nhau
+                mangas.push(createMangaTile({
+                    id: id,
+                    image: !image ? 'https://i.imgur.com/GYUxEX8.png' : 'http:' + image,
+                    title: createIconText({ text: title }),
+                    subtitleText: createIconText({ text: subtitle }),
+                }));
+                collectedIds.push(id);
+            }
+        }
+        return mangas;
+    }
+    parseUpdatedManga(updateManga, time, ids) {
+        const returnObject = {
+            ids: [],
+        };
+        // // for (let manga of $('div.item', 'div.row').toArray()) {
+        // const id = ids[0];
+        // let x = $('time.small').text().trim();
+        // let y = x.split("lúc:")[1].replace(']', '').trim().split(' ');
+        // let z = y[1].split('/');
+        // const timeUpdate = new Date(z[1] + '/' + z[0] + '/' + z[2] + ' ' + y[0]);
+        // updateManga.push(({
+        //     id: id,
+        //     time: timeUpdate
+        // }));
+        // // }
+        for (const elem of updateManga) {
+            if (ids.includes(elem.id) && time < this.convertTime(elem.time))
+                returnObject.ids.push(elem.id);
+        }
+        return returnObject;
+    }
+}
+exports.Parser = Parser;
+
+},{"paperback-extensions-common":4}],50:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.SourceTagEnum = exports.HomePageType = void 0;
+var HomePageType;
+(function (HomePageType) {
+    HomePageType["FEATURED"] = "FEATURED";
+    HomePageType["VIEWEST"] = "VIEWEST";
+    HomePageType["HOT"] = "HOT";
+    HomePageType["NEW_UPDATED"] = "NEW_UPDATED";
+    HomePageType["NEW_ADDED"] = "NEW_ADDED";
+    HomePageType["FULL"] = "FULL";
+})(HomePageType = exports.HomePageType || (exports.HomePageType = {}));
+var SourceTagEnum;
+(function (SourceTagEnum) {
+    SourceTagEnum["RECOMMENDED"] = "Recommended";
+})(SourceTagEnum = exports.SourceTagEnum || (exports.SourceTagEnum = {}));
+
+},{}]},{},[48])(48)
+});
