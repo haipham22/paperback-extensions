@@ -1188,7 +1188,6 @@ class Vcomic extends paperback_extensions_common_1.Source {
         });
     }
     async getSearchResults(query, metadata) {
-        let page = metadata?.page ?? 1;
         const request = createRequestObject({
             url: encodeURI(`${DOMAIN}/app/manga/controllers/cont.suggestSearch.php?q=${query.title}`),
             method: 'GET',
