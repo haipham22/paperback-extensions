@@ -9,30 +9,29 @@
   "scripts": {
     "start": "tsc && node dist/api.js",
     "build": "tsc",
-    "test": "node_modules/.bin/mocha --timeout 300000 -r ts-node/register src/**/*.test.ts",
+    "dev": "npx nodemon --watch \"**/*.ts\" --ext \"js ts\" --exec \"npm run serve\"",
     "coverage": "nyc -r lcov -e .ts -x \"*.test.ts\" npm run test",
     "bundle": "paperback bundle",
-    "serve": "paperback serve -p 8000",
-    "test2": "paperback test",
+    "serve": "paperback serve",
+    "test": "paperback test",
     "prepare": "husky install"
   },
   "author": "haipham22",
   "license": "ISC",
   "devDependencies": {
-    "@types/cheerio": "^0.22.31",
     "@typescript-eslint/eslint-plugin": "^5.11.0",
     "@typescript-eslint/parser": "^5.11.0",
     "eslint": "^8.33.0",
     "eslint-config-prettier": "^8.6.0",
-    "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-modules-newline": "^0.0.6",
+    "eslint-plugin-prettier": "^4.2.1",
     "husky": "^8.0.3",
     "prettier": "^2.8.3",
-    "typescript": "^4.7.2"
+    "typescript": "^4.3.2"
   },
   "dependencies": {
-    "cheerio": "^1.0.0-rc.12",
-    "paperback-cli": "^2.0.0-alpha.13",
-    "paperback-extensions-common": "^5.0.0-alpha.5"
+    "@paperback/toolchain": "^0.8.0-alpha.38",
+    "@paperback/types": "^0.8.0-alpha.38",
+    "moment": "^2.29.4"
   }
 }
