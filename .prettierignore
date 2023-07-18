@@ -1,5 +1,0 @@
-# Ignore artifacts:
-build
-coverage
-/bundles
-/node_modules
