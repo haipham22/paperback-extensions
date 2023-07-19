@@ -246,4 +246,27 @@ export abstract class DefaultScrappy<T extends DefaultParser> extends Source {
             mangaId: mangaId,
         })
     }
+
+    constructHeaders(headers?: any, refererPath?: string): any {
+        headers = headers ?? {}
+        if (userAgentRandomizer !== '') {
+            headers['user-agent'] = userAgentRandomizer
+        }
+        headers['referer'] = `${this.siteUrl}${refererPath ?? ''}`
+        return headers
+    }
+
+    override getCloudflareBypassRequest(): Request {
+        return App.createRequest({
+            url: this.siteUrl,
+            method: 'GET',
+            headers: this.constructHeaders()
+        })
+    }
+
+    CloudFlareError(status: any) {
+        if (status == 503) {
+            throw new Error('CLOUDFLARE BYPASS ERROR:\nPlease go to Settings > Sources > \<\The name of this source\> and press Cloudflare Bypass')
+        }
+    }
 }
