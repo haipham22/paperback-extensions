@@ -12,4 +12,4 @@ https://haipham22.github.io/extensions/
 
 | STT | Name      | Source URL                  | Version |
 |-----|-----------|-----------------------------|---------|
-| 1   | NetTruyen | https://www.nettruyenio.com | 2.0.1   |
+| 1   | NetTruyen | https://www.nettruyenmax.com | 2.0.2   |
