@@ -17,7 +17,7 @@ import { DefaultParser } from '../DefaultParser'
 import { PartialSourceManga } from '@paperback/types/src/generated/Exports/PartialSourceManga'
 import { MangaInfo } from '@paperback/types/src/generated/_exports'
 
-const siteUrl = 'https://nettruyenup.com'
+const siteUrl = 'https://protruyen.xyz'
 
 // noinspection JSUnusedGlobalSymbols
 export const NetTruyenInfo: SourceInfo = {
@@ -25,7 +25,7 @@ export const NetTruyenInfo: SourceInfo = {
     author: 'haipham22',
     contentRating: ContentRating.MATURE,
     icon: 'icon.png',
-    version: '2.0.0',
+    version: '2.0.1',
     description: 'NetTruyen Tracker',
     websiteBaseURL: siteUrl,
     intents:
