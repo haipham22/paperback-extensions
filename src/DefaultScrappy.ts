@@ -256,7 +256,7 @@ export abstract class DefaultScrappy<T extends DefaultParser> extends Source {
         return headers
     }
 
-    override getCloudflareBypassRequest(): Request {
+    override getCloudflareBypassRequest(): Promise<Request> {
         return App.createRequest({
             url: this.siteUrl,
             method: 'GET',
