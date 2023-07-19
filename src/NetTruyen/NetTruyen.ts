@@ -1,371 +1,217 @@
 import {
-  Chapter,
-  ChapterDetails,
-  ContentRating,
-  HomeSection,
-  HomeSectionType,
-  Manga,
-  MangaUpdates,
-  PagedResults,
-  Request,
-  Response,
-  SearchRequest,
-  Source,
-  SourceInfo,
-  TagSection,
-  TagType,
-} from 'paperback-extensions-common'
-import { Parser } from './NetTruyenParser'
-import { HomePageType } from '../enum_helper'
-import CheerioAPI = cheerio.CheerioAPI
+    Chapter,
+    ContentRating,
+    PagedResults,
+    SearchRequest,
+    SourceInfo,
+    SourceIntents,
+} from '@paperback/types'
+import {
+    DefaultScrappy,
+    HomePageType,
+    HomeSectionType,
+    SectionBlock,
+} from '../DefaultScrappy'
+import { CheerioAPI } from 'cheerio'
+import { DefaultParser } from '../DefaultParser'
+import { PartialSourceManga } from '@paperback/types/src/generated/Exports/PartialSourceManga'
+import { MangaInfo } from '@paperback/types/src/generated/_exports'
 
-const DOMAIN = 'https://nettruyenup.com'
+const siteUrl = 'https://nettruyenup.com'
 
-export const isLastPage = ($: CheerioAPI): boolean => {
-  const current = $('ul.pagination > li.active > a').text()
-  let total = $('ul.pagination > li.PagerSSCCells:last-child').text()
-
-  if (current) {
-    total = total ?? ''
-    return +total === +current //+ => convert value to number
-  }
-  return true
-}
-
+// noinspection JSUnusedGlobalSymbols
 export const NetTruyenInfo: SourceInfo = {
-  version: '1.0.0',
-  name: 'NetTruyen',
-  icon: 'icon.png',
-  author: 'haipham22',
-  authorWebsite: 'https://github.com/haipham22',
-  description: 'Extension that pulls manga from NetTruyen.',
-  websiteBaseURL: DOMAIN,
-  contentRating: ContentRating.MATURE,
-  sourceTags: [
-    {
-      text: 'Recommended',
-      type: TagType.BLUE,
-    },
-    {
-      text: 'Notifications',
-      type: TagType.GREEN,
-    },
-  ],
+    name: 'NetTruyen',
+    author: 'haipham22',
+    contentRating: ContentRating.MATURE,
+    icon: 'icon.png',
+    version: '2.0.0',
+    description: 'NetTruyen Tracker',
+    websiteBaseURL: siteUrl,
+    intents:
+    SourceIntents.MANGA_CHAPTERS |
+    SourceIntents.HOMEPAGE_SECTIONS |
+    SourceIntents.CLOUDFLARE_BYPASS_REQUIRED,
 }
 
-export class NetTruyen extends Source {
-  parser = new Parser()
-
-  override getMangaShareUrl(mangaId: string): string {
-    return `${DOMAIN}/truyen-tranh/${mangaId}`
-  }
-
-  requestManager = createRequestManager({
-    requestsPerSecond: 5,
-    requestTimeout: 20000,
-    interceptor: {
-      interceptRequest: async (request: Request): Promise<Request> => {
-        request.headers = {
-          ...(request.headers ?? {}),
-          ...{
-            referer: DOMAIN,
-          },
-        }
-
-        return request
-      },
-
-      interceptResponse: async (response: Response): Promise<Response> => {
-        return response
-      },
-    },
-  })
-
-  async getMangaDetails(mangaId: string): Promise<Manga> {
-    const url = `${DOMAIN}/truyen-tranh/${mangaId}`
-    const request = createRequestObject({
-      url: url,
-      method: 'GET',
-    })
-    const { data } = await this.requestManager.schedule(request, 1)
-    return this.parser.parseMangaDetails(this.cheerio.load(data), mangaId)
-  }
-
-  async getChapters(mangaId: string): Promise<Chapter[]> {
-    const url = `${DOMAIN}/truyen-tranh/${mangaId}`
-    const request = createRequestObject({
-      url: url,
-      method: 'GET',
-    })
-    const { data } = await this.requestManager.schedule(request, 1)
-    return this.parser.parseChapterList(this.cheerio.load(data), mangaId)
-  }
-
-  async getChapterDetails(mangaId: string, chapterId: string): Promise<ChapterDetails> {
-    const request = createRequestObject({
-      url: chapterId,
-      method: 'GET',
-    })
-    const { data } = await this.requestManager.schedule(request, 1)
-    const pages = this.parser.parseChapterDetails(this.cheerio.load(data))
-    return createChapterDetails({
-      pages: pages,
-      longStrip: false,
-      id: chapterId,
-      mangaId: mangaId,
-    })
-  }
-
-  async getSearchResults(query: SearchRequest, metadata: any): Promise<PagedResults> {
-    let page = metadata?.page ?? 1
-
-    const search = {
-      genres: '',
-      gender: '-1',
-      status: '-1',
-      minchapter: '1',
-      sort: '0',
+export class NetTruyenParser extends DefaultParser {
+    constructor(_cherrio: CheerioAPI) {
+        super(_cherrio)
     }
 
-    const tags = query.includedTags?.map(tag => tag.id) ?? []
-    const genres: string[] = []
-    tags.map(value => {
-      if (value.indexOf('.') === -1) {
-        genres.push(value)
-      } else {
-        switch (value.split('.')[0]) {
-          case 'minchapter':
-            search.minchapter = value.split('.')[1]
-            break
-          case 'gender':
-            search.gender = value.split('.')[1]
-            break
-          case 'sort':
-            search.sort = value.split('.')[1]
-            break
-          case 'status':
-            search.status = value.split('.')[1]
-            break
-        }
-      }
-    })
-    search.genres = (genres ?? []).join(',')
-    const url = `${DOMAIN}`
-    const request = createRequestObject({
-      url: query.title ? url + '/tim-truyen' : url + '/tim-truyen-nang-cao',
-      method: 'GET',
-      param: encodeURI(
-        `?keyword=${query.title ?? ''}&genres=${search.genres}&gender=${search.gender}&status=${
-          search.status
-        }&minchapter=${search.minchapter}&sort=${search.sort}&page=${page}`,
-      ),
-    })
-
-    const data = await this.requestManager.schedule(request, 1)
-    let $ = this.cheerio.load(data.data)
-    const tiles = this.parser.parseSearchResults($)
-
-    metadata = !isLastPage($) ? { page: page + 1 } : undefined
-
-    return createPagedResults({
-      results: tiles,
-      metadata,
-    })
-  }
-
-  override async getHomePageSections(sectionCallback: (section: HomeSection) => void): Promise<void> {
-    let featured: HomeSection = createHomeSection({
-      id: HomePageType.FEATURED,
-      title: 'Truyện Đề Cử',
-      type: HomeSectionType.featured,
-    })
-    let viewest: HomeSection = createHomeSection({
-      id: HomePageType.VIEWEST,
-      title: 'Truyện Xem Nhiều Nhất',
-      view_more: true,
-    })
-    let hot: HomeSection = createHomeSection({
-      id: HomePageType.HOT,
-      title: 'Truyện Hot Nhất',
-      view_more: true,
-    })
-    let newUpdated: HomeSection = createHomeSection({
-      id: HomePageType.NEW_UPDATED,
-      title: 'Truyện Mới Cập Nhật',
-      view_more: true,
-    })
-    let newAdded: HomeSection = createHomeSection({
-      id: HomePageType.NEW_ADDED,
-      title: 'Truyện Mới Thêm Gần Đây',
-      view_more: true,
-    })
-    let full: HomeSection = createHomeSection({
-      id: HomePageType.FULL,
-      title: 'Truyện Đã Hoàn Thành',
-      view_more: true,
-    })
-
-    //Load empty sections
-    sectionCallback(featured)
-    sectionCallback(viewest)
-    sectionCallback(hot)
-    sectionCallback(newUpdated)
-    sectionCallback(newAdded)
-    sectionCallback(full)
-
-    ///Get the section data
-    //Featured
-    let request = createRequestObject({
-      url: DOMAIN,
-      method: 'GET',
-    })
-    let data = await this.requestManager.schedule(request, 1)
-
-    let homePageHtml = this.cheerio.load(data)
-    featured.items = this.parser.parseFeaturedSection(homePageHtml)
-    sectionCallback(featured)
-
-    //View
-    request = createRequestObject({
-      url: `${DOMAIN}/tim-truyen`,
-      method: 'GET',
-      param: '?status=-1&sort=10',
-    })
-    data = await this.requestManager.schedule(request, 1)
-
-    viewest.items = this.parser.parsePopularSection(this.cheerio.load(data.data))
-
-    sectionCallback(viewest)
-
-    //Hot
-    request = createRequestObject({
-      url: `${DOMAIN}/hot`,
-      method: 'GET',
-    })
-    data = await this.requestManager.schedule(request, 1)
-    let $ = this.cheerio.load(data.data)
-
-    hot.items = this.parser.parseHotSection($)
-    sectionCallback(hot)
-
-    //New Updates
-    newUpdated.items = this.parser.parseNewUpdatedSection(homePageHtml)
-    sectionCallback(newUpdated)
-
-    //New added
-    request = createRequestObject({
-      url: `${DOMAIN}/tim-truyen`,
-      method: 'GET',
-      param: '?status=-1&sort=15',
-    })
-    data = await this.requestManager.schedule(request, 1)
-
-    newAdded.items = this.parser.parseNewAddedSection(this.cheerio.load(data.data))
-    sectionCallback(newAdded)
-
-    //Full
-    request = createRequestObject({
-      url: `${DOMAIN}/truyen-full`,
-      method: 'GET',
-    })
-    data = await this.requestManager.schedule(request, 1)
-
-    full.items = this.parser.parseFullSection(this.cheerio.load(data.data))
-    sectionCallback(full)
-  }
-
-  override async getViewMoreItems(homepageSectionId: string, metadata: any): Promise<PagedResults> {
-    let page: number = metadata?.page ?? 1
-    let param = ''
-    let url = ''
-    switch (homepageSectionId as HomePageType) {
-      case HomePageType.VIEWEST:
-        param = `?status=-1&sort=10&page=${page}`
-        url = `tim-truyen`
-        break
-      case HomePageType.HOT:
-        param = `?page=${page}`
-        url = `hot`
-        break
-      case HomePageType.NEW_UPDATED:
-        param = `?page=${page}`
-        url = DOMAIN
-        break
-      case HomePageType.NEW_ADDED:
-        param = `?status=-1&sort=15&page=${page}`
-        url = `tim-truyen`
-        break
-      case HomePageType.FULL:
-        param = `?page=${page}`
-        url = `truyen-full`
-        break
-      default:
-        throw new Error("Requested to getViewMoreItems for a section ID which doesn't exist")
+    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+    parserListManga($doc: CheerioAPI, contextBlockSelector?: string) {
+        contextBlockSelector = !contextBlockSelector
+            ? '.center-side'
+            : contextBlockSelector
+        return $doc('.item', contextBlockSelector)
+            .map((_, $el) => {
+                return {
+                    title: $doc('h3 a', $el)?.text()?.trim(),
+                    subtitle: $doc(
+                        '.slide-caption > a, .comic-item li:first-child a',
+                        $el
+                    )
+                        ?.text()
+                        ?.trim(),
+                    image: this.parserImg($doc, $el),
+                    mangaId: $doc('a', $el).attr('href')?.trim(),
+                } as PartialSourceManga
+            })
+            .toArray()
     }
 
-    const request = createRequestObject({
-      url: `${DOMAIN}/${url}`,
-      method: 'GET',
-      param,
-    })
+    parserMangaInfo($: CheerioAPI): MangaInfo {
+        const img = $('.col-image img').attr('src')
+        return {
+            author: $('.author > p:last-child, p:contains(\'Tác giả\') + p').text(),
+            artist: $('.author > p:last-child, p:contains(\'Tác giả\') + p').text(),
+            desc: $('.detail-content p').text(),
+            titles: [$('.center-side h1.title-detail').text()],
+            image: img,
+            status: $('.status > p + p').text(),
+            hentai: false,
+        } as MangaInfo
+    }
 
-    const response = await this.requestManager.schedule(request, 1)
-    const $ = this.cheerio.load(response.data)
+    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+    parseChapterList($doc: CheerioAPI): Chapter[] {
+        return $doc('.list-chapter li.row:not(.heading)')
+            .map((_, $el) => {
+                const index = Number($doc('a', $el)?.data('id'))
+                const [, chapNum] = ($doc('a', $el)?.text() || '').split(' ')
+                return {
+                    id: $doc('a', $el).attr('href'),
+                    chapNum: Number(chapNum),
+                    name: $doc('a', $el)?.text(),
+                    time: this.convertTime($doc('.col-xs-4', $el).text(), 'hh:mm DD/MM'),
+                    sortingIndex: index,
+                } as Chapter
+            })
+            .toArray()
+    }
 
-    const manga = this.parser.parseViewMoreItems($)
-    metadata = isLastPage($) ? undefined : { page: page + 1 }
+    parseChapterDetails($doc: CheerioAPI): string[] {
+        return $doc('.page-chapter', '.reading-detail')
+            .map((_, obj): string => {
+                return 'https:' + $doc('img', obj).data('original')
+            })
+            .toArray()
+            .filter(Boolean)
+    }
 
-    return createPagedResults({
-      results: manga,
-      metadata,
-    })
-  }
+    parserImg($doc: unknown, $el?: unknown, useHttps = true): string {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+        let el = $doc('img')
 
-  override async getSearchTags(): Promise<TagSection[]> {
-    const url = `${DOMAIN}/tim-truyen-nang-cao`
-    const request = createRequestObject({
-      url: url,
-      method: 'GET',
-    })
+        if ($el) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            el = $doc('img', $el)
+        }
 
-    const response = await this.requestManager.schedule(request, 1)
-    const $ = this.cheerio.load(response.data)
-    return this.parser.parseTags($)
-  }
+        const link = (el.data('src') || el.data('original'))?.trim()
 
-  override async filterUpdatedManga(
-    mangaUpdatesFoundCallback: (updates: MangaUpdates) => void,
-    time: Date,
-    ids: string[],
-  ): Promise<void> {
-    const updateManga: any = []
-    const pages = 10
-    for (let i = 1; i < pages + 1; i++) {
-      const request = createRequestObject({
-        url: `${DOMAIN}/?page=${i}`,
-        method: 'GET',
-      })
-      const response = await this.requestManager.schedule(request, 1)
-      const $ = this.cheerio.load(response.data)
-      // let x = $('time.small').text().trim();
-      // let y = x.split("lúc:")[1].replace(']', '').trim().split(' ');
-      // let z = y[1].split('/');
-      // const timeUpdate = new Date(z[1] + '/' + z[0] + '/' + z[2] + ' ' + y[0]);
-      // updateManga.push({
-      //     id: item,
-      //     time: timeUpdate
-      // })
-      for (let manga of $('div.item', 'div.row').toArray()) {
-        const id = $('figure.clearfix > div.image > a', manga).attr('href')?.split('/').pop()
-        const time = $('figure.clearfix > figcaption > ul > li.chapter:nth-of-type(1) > i', manga).last().text().trim()
-        updateManga.push({
-          id: id,
-          time: time,
+        if (link === '') return 'https://i.imgur.com/GYUxEX8.png'
+
+        if (link?.indexOf('https') === -1 && useHttps) {
+            return 'https:' + link
+        }
+        if (link?.indexOf('http') === -1) {
+            return 'http:' + link
+        }
+        return link
+    }
+
+    override isLastPage($doc: CheerioAPI): boolean {
+        const $root = $doc('.pagination-outter')
+        const currentPage = $doc('li.active', $root)?.text()
+        const nextPage = $doc('li.active + li')?.text()
+
+        return currentPage === (nextPage || '')
+    }
+}
+
+export class NetTruyen extends DefaultScrappy<NetTruyenParser> {
+    constructor(cherrio: CheerioAPI) {
+        super(cherrio, siteUrl, new NetTruyenParser(cherrio))
+    }
+
+    getHomeSection(): SectionBlock[] {
+        return [
+            {
+                id: HomePageType.FEATURED,
+                type: HomeSectionType.singleRowNormal,
+                rootSelector: 'div.altcontent1',
+                title: 'Truyện đề cử',
+                containsMoreItems: false,
+            },
+            {
+                id: HomePageType.HOT,
+                type: HomeSectionType.singleRowNormal,
+                rootSelector: '.center-side',
+                title: 'Truyện đang hot',
+                containsMoreItems: true,
+                url: 'hot',
+            },
+            {
+                id: HomePageType.NEW_UPDATED,
+                type: HomeSectionType.singleRowNormal,
+                rootSelector: '.center-side',
+                title: 'Mới cập nhật',
+                containsMoreItems: true,
+            },
+        ]
+    }
+
+    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+    override async getViewMoreItems(
+        homepageSectionId: string,
+        metadata: any
+    ): Promise<PagedResults> {
+        let url = ''
+        switch (homepageSectionId as HomePageType) {
+            case HomePageType.HOT:
+                url = 'hot'
+                break
+            case HomePageType.FEATURED:
+            default:
+                url = ''
+                break
+        }
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        return super.getViewMoreItems(homepageSectionId, {
+            ...metadata,
+            url,
         })
-      }
     }
 
-    const returnObject = this.parser.parseUpdatedManga(updateManga, time, ids)
-    mangaUpdatesFoundCallback(createMangaUpdates(returnObject))
-  }
+    override async getSearchResults(
+        query: SearchRequest,
+        metadata: any
+    ): Promise<PagedResults> {
+        return super.getSearchResults(query, {
+            ...metadata,
+            url: 'tim-truyen',
+            params: {
+                keyword: query.title,
+            },
+        })
+    }
+
+    //TODO: add search tags
+    // override getSearchTags(): Promise<TagSection[]> {
+    //     const request = App.createRequest({
+    //         url: this.siteUrl,
+    //         method: 'GET',
+    //     })
+    //
+    //     const $ = await this.getRawHtml(request)
+    //
+    //     return $('.dropdown-menu.megamenu nav li').map((_, $el) => ({
+    //
+    //     })).toArray().map(i => App.createTagSection(i))
+    // }
 }
