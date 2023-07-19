@@ -6391,6 +6391,26 @@ class DefaultScrappy extends lib_1.Source {
             });
         });
     }
+    constructHeaders(headers, refererPath) {
+        headers = headers !== null && headers !== void 0 ? headers : {};
+        if (userAgentRandomizer !== '') {
+            headers['user-agent'] = userAgentRandomizer;
+        }
+        headers['referer'] = `${this.siteUrl}${refererPath !== null && refererPath !== void 0 ? refererPath : ''}`;
+        return headers;
+    }
+    getCloudflareBypassRequest() {
+        return App.createRequest({
+            url: this.siteUrl,
+            method: 'GET',
+            headers: this.constructHeaders()
+        });
+    }
+    CloudFlareError(status) {
+        if (status == 503) {
+            throw new Error('CLOUDFLARE BYPASS ERROR:\nPlease go to Settings > Sources > \<\The name of this source\> and press Cloudflare Bypass');
+        }
+    }
 }
 exports.DefaultScrappy = DefaultScrappy;
 
