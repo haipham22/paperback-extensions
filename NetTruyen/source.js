@@ -6410,14 +6410,14 @@ exports.NetTruyen = exports.NetTruyenParser = exports.NetTruyenInfo = void 0;
 const types_1 = require("@paperback/types");
 const DefaultScrappy_1 = require("../DefaultScrappy");
 const DefaultParser_1 = require("../DefaultParser");
-const siteUrl = 'https://protruyen.xyz';
+const siteUrl = 'https://www.nettruyenmax.com';
 // noinspection JSUnusedGlobalSymbols
 exports.NetTruyenInfo = {
     name: 'NetTruyen',
     author: 'haipham22',
     contentRating: types_1.ContentRating.MATURE,
     icon: 'icon.png',
-    version: '2.0.1',
+    version: '2.0.2',
     description: 'NetTruyen Tracker',
     websiteBaseURL: siteUrl,
     intents: types_1.SourceIntents.MANGA_CHAPTERS |
