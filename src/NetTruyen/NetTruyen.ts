@@ -1,21 +1,19 @@
-import {
-    Chapter,
+import { Chapter,
     ContentRating,
     PagedResults,
     SearchRequest,
     SourceInfo,
-    SourceIntents,
-} from '@paperback/types'
-import {
-    DefaultScrappy,
+    SourceIntents } from '@paperback/types'
+import { DefaultScrappy,
     HomePageType,
     HomeSectionType,
-    SectionBlock,
-} from '../DefaultScrappy'
+    HTTP_METHOD,
+    SectionBlock } from '../DefaultScrappy'
 import { CheerioAPI } from 'cheerio'
 import { DefaultParser } from '../DefaultParser'
 import { PartialSourceManga } from '@paperback/types/src/generated/Exports/PartialSourceManga'
 import { MangaInfo } from '@paperback/types/src/generated/_exports'
+import { Request } from '@paperback/types/src/generated/Exports/Request'
 
 const siteUrl = 'https://www.nettruyenmax.com'
 
@@ -25,7 +23,7 @@ export const NetTruyenInfo: SourceInfo = {
     author: 'haipham22',
     contentRating: ContentRating.MATURE,
     icon: 'icon.png',
-    version: '2.0.2',
+    version: '2.0.3',
     description: 'NetTruyen Tracker',
     websiteBaseURL: siteUrl,
     intents:
@@ -39,8 +37,7 @@ export class NetTruyenParser extends DefaultParser {
         super(_cherrio)
     }
 
-    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-    parserListManga($doc: CheerioAPI, contextBlockSelector?: string) {
+    override parserListManga($doc: CheerioAPI, contextBlockSelector?: string) {
         contextBlockSelector = !contextBlockSelector
             ? '.center-side'
             : contextBlockSelector
@@ -61,21 +58,20 @@ export class NetTruyenParser extends DefaultParser {
             .toArray()
     }
 
-    parserMangaInfo($: CheerioAPI): MangaInfo {
-        const img = $('.col-image img').attr('src')
+    override parserMangaInfo($: CheerioAPI): MangaInfo {
         return {
             author: $('.author > p:last-child, p:contains(\'Tác giả\') + p').text(),
             artist: $('.author > p:last-child, p:contains(\'Tác giả\') + p').text(),
             desc: $('.detail-content p').text(),
             titles: [$('.center-side h1.title-detail').text()],
-            image: img,
+            image: this.parserImg($, $('.col-image')),
             status: $('.status > p + p').text(),
             hentai: false,
         } as MangaInfo
     }
 
     // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-    parseChapterList($doc: CheerioAPI): Chapter[] {
+    override parseChapterList($doc: CheerioAPI): Chapter[] {
         return $doc('.list-chapter li.row:not(.heading)')
             .map((_, $el) => {
                 const index = Number($doc('a', $el)?.data('id'))
@@ -91,7 +87,7 @@ export class NetTruyenParser extends DefaultParser {
             .toArray()
     }
 
-    parseChapterDetails($doc: CheerioAPI): string[] {
+    override parseChapterDetails($doc: CheerioAPI): string[] {
         return $doc('.page-chapter', '.reading-detail')
             .map((_, obj): string => {
                 return 'https:' + $doc('img', obj).data('original')
@@ -100,7 +96,7 @@ export class NetTruyenParser extends DefaultParser {
             .filter(Boolean)
     }
 
-    parserImg($doc: unknown, $el?: unknown, useHttps = true): string {
+    override parserImg($doc: unknown, $el?: unknown, useHttps = true): string {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
         let el = $doc('img')
@@ -111,7 +107,7 @@ export class NetTruyenParser extends DefaultParser {
             el = $doc('img', $el)
         }
 
-        const link = (el.data('src') || el.data('original'))?.trim()
+        const link = (el.data('src') || el.data('original') || el.attr('src'))?.trim()
 
         if (link === '') return 'https://i.imgur.com/GYUxEX8.png'
 
@@ -124,7 +120,7 @@ export class NetTruyenParser extends DefaultParser {
         return link
     }
 
-    override isLastPage($doc: CheerioAPI): boolean {
+    isLastPage($doc: CheerioAPI): boolean {
         const $root = $doc('.pagination-outter')
         const currentPage = $doc('li.active', $root)?.text()
         const nextPage = $doc('li.active + li')?.text()
@@ -133,7 +129,7 @@ export class NetTruyenParser extends DefaultParser {
     }
 }
 
-export class NetTruyen extends DefaultScrappy<NetTruyenParser> {
+export class NetTruyen extends DefaultScrappy<NetTruyenParser>{
     constructor(cherrio: CheerioAPI) {
         super(cherrio, siteUrl, new NetTruyenParser(cherrio))
     }
@@ -198,6 +194,19 @@ export class NetTruyen extends DefaultScrappy<NetTruyenParser> {
             params: {
                 keyword: query.title,
             },
+        })
+    }
+
+    constructHeaders(headers?: any, refererPath?: string): any {
+        headers['referer'] = `${this.siteUrl}/${refererPath ?? ''}`
+        return headers
+    }
+
+    override async getCloudflareBypassRequestAsync(): Promise<Request> {
+        return App.createRequest({
+            url: this.siteUrl,
+            method: HTTP_METHOD.GET,
+            headers: this.constructHeaders()
         })
     }
 

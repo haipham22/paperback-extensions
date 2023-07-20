@@ -46,7 +46,7 @@ export class ScrappyRequestInterceptor implements SourceInterceptor {
         request.headers = {
             ...(request.headers ?? {}),
             ...{
-                referer: this.siteUrl,
+                referer: this.siteUrl + '/',
             },
         }
 
@@ -78,6 +78,7 @@ export abstract class DefaultScrappy<T extends DefaultParser> extends Source {
     requestManager = App.createRequestManager({
         requestsPerSecond: 5,
         requestTimeout: 10000,
+        interceptor: new ScrappyRequestInterceptor(this.siteUrl)
     });
 
     // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -174,48 +175,44 @@ export abstract class DefaultScrappy<T extends DefaultParser> extends Source {
             .map(([key, val]) => `${key}=${encodeURIComponent(val)}`)
             .join('&')
 
-        const request = App.createRequest({
-            url: `${this.siteUrl}/${url}?${encodedParams}`,
-            method: 'GET',
-        })
 
-        const $ = await this.getRawHtml(request)
-        const tiles = this.parser.parserListManga($)
+        const $ = await this.getRawHtml(
+            App.createRequest({
+                url: `${this.siteUrl}/${url}?${encodedParams}`,
+                method: 'GET',
+            })
+        )
+
 
         metadata = !this.parser.isLastPage($) ? { page: page + 1 } : undefined
 
         return App.createPagedResults({
-            results: tiles.map((i) => App.createPartialSourceManga(i)),
+            results: this.parser.parserListManga($)
+                .map((i) => App.createPartialSourceManga(i)),
             metadata,
         })
     }
 
     async getMangaDetails(mangaId: string): Promise<SourceManga> {
-        const request = App.createRequest({
+        const $ = await this.getRawHtml(App.createRequest({
             url: mangaId,
             method: HTTP_METHOD.GET,
-        })
-        const { data } = await this.requestManager.schedule(request, 3)
-        const $ = this.cheerio.load(data || '')
+        }))
         const mangaInfo = this.parser.parserMangaInfo($)
         return App.createSourceManga({
             id: mangaId,
             mangaInfo: App.createMangaInfo({
                 ...mangaInfo,
-                image: mangaInfo.image
-                    ? mangaInfo.image
-                    : 'https://i.imgur.com/GYUxEX8.png',
+                image: mangaInfo.image || 'https://i.imgur.com/GYUxEX8.png',
             }),
         })
     }
 
     async getChapters(mangaId: string): Promise<Chapter[]> {
-        const request = App.createRequest({
+        const $ = await this.getRawHtml(App.createRequest({
             url: mangaId,
             method: HTTP_METHOD.GET,
-        })
-        const { data } = await this.requestManager.schedule(request, 3)
-        const $ = this.cheerio.load(data || '')
+        }))
         const chapters = this.parser.parseChapterList($)
         return chapters.map((book) =>
             App.createChapter({
@@ -233,40 +230,15 @@ export abstract class DefaultScrappy<T extends DefaultParser> extends Source {
         mangaId: string,
         chapterId: string
     ): Promise<ChapterDetails> {
-        const request = App.createRequest({
+        const $ = await this.getRawHtml(App.createRequest({
             url: chapterId,
             method: HTTP_METHOD.GET,
-        })
-        const { data } = await this.requestManager.schedule(request, 1)
-        const $ = this.cheerio.load(data || '')
+        }))
         const pages = this.parser.parseChapterDetails($)
         return App.createChapterDetails({
             pages: pages,
             id: chapterId,
             mangaId: mangaId,
         })
-    }
-
-    constructHeaders(headers?: any, refererPath?: string): any {
-        headers = headers ?? {}
-        if (userAgentRandomizer !== '') {
-            headers['user-agent'] = userAgentRandomizer
-        }
-        headers['referer'] = `${this.siteUrl}${refererPath ?? ''}`
-        return headers
-    }
-
-    override getCloudflareBypassRequest(): Promise<Request> {
-        return App.createRequest({
-            url: this.siteUrl,
-            method: 'GET',
-            headers: this.constructHeaders()
-        })
-    }
-
-    CloudFlareError(status: any) {
-        if (status == 503) {
-            throw new Error('CLOUDFLARE BYPASS ERROR:\nPlease go to Settings > Sources > \<\The name of this source\> and press Cloudflare Bypass')
-        }
     }
 }
