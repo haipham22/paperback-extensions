@@ -6235,7 +6235,7 @@ class ScrappyRequestInterceptor {
     interceptRequest(request) {
         var _a;
         request.headers = Object.assign(Object.assign({}, ((_a = request.headers) !== null && _a !== void 0 ? _a : {})), {
-            referer: this.siteUrl,
+            referer: this.siteUrl + '/',
         });
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
@@ -6260,6 +6260,7 @@ class DefaultScrappy extends lib_1.Source {
         this.requestManager = App.createRequestManager({
             requestsPerSecond: 5,
             requestTimeout: 10000,
+            interceptor: new ScrappyRequestInterceptor(this.siteUrl)
         });
     }
     // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -6326,44 +6327,37 @@ class DefaultScrappy extends lib_1.Source {
             const encodedParams = Object.entries(param)
                 .map(([key, val]) => `${key}=${encodeURIComponent(val)}`)
                 .join('&');
-            const request = App.createRequest({
+            const $ = yield this.getRawHtml(App.createRequest({
                 url: `${this.siteUrl}/${url}?${encodedParams}`,
                 method: 'GET',
-            });
-            const $ = yield this.getRawHtml(request);
-            const tiles = this.parser.parserListManga($);
+            }));
             metadata = !this.parser.isLastPage($) ? { page: page + 1 } : undefined;
             return App.createPagedResults({
-                results: tiles.map((i) => App.createPartialSourceManga(i)),
+                results: this.parser.parserListManga($)
+                    .map((i) => App.createPartialSourceManga(i)),
                 metadata,
             });
         });
     }
     getMangaDetails(mangaId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const request = App.createRequest({
+            const $ = yield this.getRawHtml(App.createRequest({
                 url: mangaId,
                 method: HTTP_METHOD.GET,
-            });
-            const { data } = yield this.requestManager.schedule(request, 3);
-            const $ = this.cheerio.load(data || '');
+            }));
             const mangaInfo = this.parser.parserMangaInfo($);
             return App.createSourceManga({
                 id: mangaId,
-                mangaInfo: App.createMangaInfo(Object.assign(Object.assign({}, mangaInfo), { image: mangaInfo.image
-                        ? mangaInfo.image
-                        : 'https://i.imgur.com/GYUxEX8.png' })),
+                mangaInfo: App.createMangaInfo(Object.assign(Object.assign({}, mangaInfo), { image: mangaInfo.image || 'https://i.imgur.com/GYUxEX8.png' })),
             });
         });
     }
     getChapters(mangaId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const request = App.createRequest({
+            const $ = yield this.getRawHtml(App.createRequest({
                 url: mangaId,
                 method: HTTP_METHOD.GET,
-            });
-            const { data } = yield this.requestManager.schedule(request, 3);
-            const $ = this.cheerio.load(data || '');
+            }));
             const chapters = this.parser.parseChapterList($);
             return chapters.map((book) => App.createChapter({
                 id: book.id,
@@ -6377,12 +6371,10 @@ class DefaultScrappy extends lib_1.Source {
     }
     getChapterDetails(mangaId, chapterId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const request = App.createRequest({
+            const $ = yield this.getRawHtml(App.createRequest({
                 url: chapterId,
                 method: HTTP_METHOD.GET,
-            });
-            const { data } = yield this.requestManager.schedule(request, 1);
-            const $ = this.cheerio.load(data || '');
+            }));
             const pages = this.parser.parseChapterDetails($);
             return App.createChapterDetails({
                 pages: pages,
@@ -6390,26 +6382,6 @@ class DefaultScrappy extends lib_1.Source {
                 mangaId: mangaId,
             });
         });
-    }
-    constructHeaders(headers, refererPath) {
-        headers = headers !== null && headers !== void 0 ? headers : {};
-        if (userAgentRandomizer !== '') {
-            headers['user-agent'] = userAgentRandomizer;
-        }
-        headers['referer'] = `${this.siteUrl}${refererPath !== null && refererPath !== void 0 ? refererPath : ''}`;
-        return headers;
-    }
-    getCloudflareBypassRequest() {
-        return App.createRequest({
-            url: this.siteUrl,
-            method: 'GET',
-            headers: this.constructHeaders()
-        });
-    }
-    CloudFlareError(status) {
-        if (status == 503) {
-            throw new Error('CLOUDFLARE BYPASS ERROR:\nPlease go to Settings > Sources > \<\The name of this source\> and press Cloudflare Bypass');
-        }
     }
 }
 exports.DefaultScrappy = DefaultScrappy;
@@ -6437,7 +6409,7 @@ exports.NetTruyenInfo = {
     author: 'haipham22',
     contentRating: types_1.ContentRating.MATURE,
     icon: 'icon.png',
-    version: '2.0.2',
+    version: '2.0.3',
     description: 'NetTruyen Tracker',
     websiteBaseURL: siteUrl,
     intents: types_1.SourceIntents.MANGA_CHAPTERS |
@@ -6448,7 +6420,6 @@ class NetTruyenParser extends DefaultParser_1.DefaultParser {
     constructor(_cherrio) {
         super(_cherrio);
     }
-    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
     parserListManga($doc, contextBlockSelector) {
         contextBlockSelector = !contextBlockSelector
             ? '.center-side'
@@ -6466,13 +6437,12 @@ class NetTruyenParser extends DefaultParser_1.DefaultParser {
             .toArray();
     }
     parserMangaInfo($) {
-        const img = $('.col-image img').attr('src');
         return {
             author: $('.author > p:last-child, p:contains(\'Tác giả\') + p').text(),
             artist: $('.author > p:last-child, p:contains(\'Tác giả\') + p').text(),
             desc: $('.detail-content p').text(),
             titles: [$('.center-side h1.title-detail').text()],
-            image: img,
+            image: this.parserImg($, $('.col-image')),
             status: $('.status > p + p').text(),
             hentai: false,
         };
@@ -6512,7 +6482,7 @@ class NetTruyenParser extends DefaultParser_1.DefaultParser {
             // @ts-ignore
             el = $doc('img', $el);
         }
-        const link = (_a = (el.data('src') || el.data('original'))) === null || _a === void 0 ? void 0 : _a.trim();
+        const link = (_a = (el.data('src') || el.data('original') || el.attr('src'))) === null || _a === void 0 ? void 0 : _a.trim();
         if (link === '')
             return 'https://i.imgur.com/GYUxEX8.png';
         if ((link === null || link === void 0 ? void 0 : link.indexOf('https')) === -1 && useHttps) {
@@ -6591,6 +6561,19 @@ class NetTruyen extends DefaultScrappy_1.DefaultScrappy {
             return _super.getSearchResults.call(this, query, Object.assign(Object.assign({}, metadata), { url: 'tim-truyen', params: {
                     keyword: query.title,
                 } }));
+        });
+    }
+    constructHeaders(headers, refererPath) {
+        headers['referer'] = `${this.siteUrl}/${refererPath !== null && refererPath !== void 0 ? refererPath : ''}`;
+        return headers;
+    }
+    getCloudflareBypassRequestAsync() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return App.createRequest({
+                url: this.siteUrl,
+                method: DefaultScrappy_1.HTTP_METHOD.GET,
+                headers: this.constructHeaders()
+            });
         });
     }
 }
