@@ -15,7 +15,7 @@ export class BlogTruyenParser extends DefaultParser {
                 return $doc('.storyitem', contextBlockSelector)
                     .map((_, $el) => {
                         return {
-                            title: $doc('h3 a',$el).attr('title')?.trim(),
+                            title: decodeURI($doc('h3 a',$el).attr('title')?.trim() || ''),
                             image: this.parserImg($doc, $el),
                             mangaId: this.siteUrl + $doc('h3 a',$el).attr('href')?.trim(),
                         } as PartialSourceManga
@@ -25,7 +25,7 @@ export class BlogTruyenParser extends DefaultParser {
                 return $doc('a',contextBlockSelector)
                     .map((_, $el) => {
                         return {
-                            title: $doc($el).attr('title')?.trim(),
+                            title: decodeURI($doc($el).attr('title')?.trim() || ''),
                             image: this.parserImg($doc, $el),
                             mangaId: this.siteUrl + $doc($el).attr('href')?.trim(),
                         } as PartialSourceManga
@@ -40,25 +40,30 @@ export class BlogTruyenParser extends DefaultParser {
         return {
             author: $('.description p:contains(\'Tác giả\') > p').text(),
             artist: $('.description p:contains(\'Tác giả\') > p').text(),
-            desc: $('.detail-content p').text(),
-            titles: [$('.center-side h1.title-detail').text()],
-            image: this.parserImg($, $('.col-image')),
-            status: $('.status > p + p').text(),
+            status: $('.description p:contains(\'Trạng thái\') > span').text(),
+            desc: $('.content').text(),
+            titles: [$('h1 a').text()],
+            image: this.parserImg($, $('.thumbnail')),
             hentai: false,
         } as MangaInfo
     }
 
     // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
     parseChapterList($doc: CheerioAPI): Chapter[] {
-        return $doc('.list-chapter li.row:not(.heading)')
+        return $doc('p','.list-chapters #list-chapters')
             .map((_, $el) => {
-                const index = Number($doc('a', $el)?.data('id'))
-                const [, chapNum] = ($doc('a', $el)?.text() || '').split(' ')
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
+                const sortIndexStr = $doc('a', $el)?.attr('id') || ''
+                const [, sortIndex] = sortIndexStr.split('_')
+                const index = Number(sortIndex)
+                const [, chapNum] = $doc('a', $el)?.text()?.trim().split(' ')
+                console.log(chapNum)
                 return {
                     id: $doc('a', $el).attr('href'),
                     chapNum: Number(chapNum),
-                    name: $doc('a', $el)?.text(),
-                    time: this.convertTime($doc('.col-xs-4', $el).text(), 'hh:mm DD/MM'),
+                    name: $doc('a', $el)?.text()?.trim(),
+                    time: this.convertTime($doc('.publishedDate', $el).text(), 'DD/MM/YYYY hh:mm'),
                     sortingIndex: index,
                 } as Chapter
             })
