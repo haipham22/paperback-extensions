@@ -3,10 +3,15 @@ import { CheerioAPI } from 'cheerio'
 import { PartialSourceManga } from '@paperback/types/src/generated/Exports/PartialSourceManga'
 import { MangaInfo } from '@paperback/types/src/generated/_exports'
 import { Chapter } from '@paperback/types'
+import * as entities from 'entities'
 
 export class BlogTruyenParser extends DefaultParser {
     constructor(_cherrio: CheerioAPI, private siteUrl: string) {
         super(_cherrio)
+    }
+
+    decodeString(str: string) {
+        return entities.decode(str)
     }
 
     parserListManga($doc: CheerioAPI, contextBlockSelector?: string): PartialSourceManga[] {
@@ -15,7 +20,7 @@ export class BlogTruyenParser extends DefaultParser {
                 return $doc('.storyitem', contextBlockSelector)
                     .map((_, $el) => {
                         return {
-                            title: decodeURI($doc('h3 a',$el).attr('title')?.trim() || ''),
+                            title: this.decodeString($doc('h3 a',$el).attr('title')?.trim() || ''),
                             image: this.parserImg($doc, $el),
                             mangaId: this.siteUrl + $doc('h3 a',$el).attr('href')?.trim(),
                         } as PartialSourceManga
@@ -25,7 +30,7 @@ export class BlogTruyenParser extends DefaultParser {
                 return $doc('a',contextBlockSelector)
                     .map((_, $el) => {
                         return {
-                            title: decodeURI($doc($el).attr('title')?.trim() || ''),
+                            title: this.decodeString($doc($el).attr('title')?.trim() || ''),
                             image: this.parserImg($doc, $el),
                             mangaId: this.siteUrl + $doc($el).attr('href')?.trim(),
                         } as PartialSourceManga

@@ -12,7 +12,7 @@ import { CheerioAPI } from 'cheerio'
 import { Request } from '@paperback/types/src/generated/Exports/Request'
 import { BlogTruyenParser } from './BlogTruyenParser'
 
-const siteUrl = 'https://blogtruyen.vn'
+const siteUrl = 'https://blogtruyenmoi.com'
 
 // noinspection JSUnusedGlobalSymbols
 export const BlogTruyenInfo: SourceInfo = {
