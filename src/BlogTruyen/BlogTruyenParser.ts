@@ -67,7 +67,7 @@ export class BlogTruyenParser extends DefaultParser {
                 return {
                     id: $doc('a', $el).attr('href'),
                     chapNum: Number(chapNum),
-                    name: $doc('a', $el)?.text()?.trim(),
+                    name: this.decodeString($doc('.entry-title a', $el)?.text()?.trim()),
                     time: this.convertTime($doc('.publishedDate', $el).text(), 'DD/MM/YYYY hh:mm'),
                     sortingIndex: index,
                 } as Chapter
