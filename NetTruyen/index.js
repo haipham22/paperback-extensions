@@ -6402,7 +6402,7 @@ exports.NetTruyen = exports.NetTruyenParser = exports.NetTruyenInfo = void 0;
 const types_1 = require("@paperback/types");
 const DefaultScrappy_1 = require("../DefaultScrappy");
 const DefaultParser_1 = require("../DefaultParser");
-const siteUrl = 'https://www.nettruyenmax.com';
+const siteUrl = 'https://www.nettruyenus.com';
 // noinspection JSUnusedGlobalSymbols
 exports.NetTruyenInfo = {
     name: 'NetTruyen',
@@ -6563,9 +6563,8 @@ class NetTruyen extends DefaultScrappy_1.DefaultScrappy {
                 } }));
         });
     }
-    constructHeaders(headers, refererPath) {
-        headers['referer'] = `${this.siteUrl}/${refererPath !== null && refererPath !== void 0 ? refererPath : ''}`;
-        return headers;
+    constructHeaders(headers = {}, _refererPath) {
+        return Object.assign(Object.assign({}, headers), { referer: `${this.siteUrl}/` });
     }
     getCloudflareBypassRequestAsync() {
         return __awaiter(this, void 0, void 0, function* () {
