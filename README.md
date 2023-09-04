@@ -10,6 +10,6 @@ https://haipham22.github.io/paperback-extensions/
 
 ## Sources
 
-| STT | Name      | Source URL                   | Version |
-|-----|-----------|------------------------------|---------|
-| 1   | NetTruyen | https://www.nettruyenmax.com | 2.0.3   |
+| STT | Name      | Source URL                  | Version |
+|-----|-----------|-----------------------------|---------|
+| 1   | NetTruyen | https://www.nettruyenus.com | 2.0.4   |
