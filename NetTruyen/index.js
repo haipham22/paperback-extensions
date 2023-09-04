@@ -6398,10 +6398,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.NetTruyen = exports.NetTruyenParser = exports.NetTruyenInfo = void 0;
+exports.NetTruyen = exports.NetTruyenInfo = void 0;
 const types_1 = require("@paperback/types");
 const DefaultScrappy_1 = require("../DefaultScrappy");
-const DefaultParser_1 = require("../DefaultParser");
+const NetTruyenParser_1 = require("./NetTruyenParser");
 const siteUrl = 'https://www.nettruyenus.com';
 // noinspection JSUnusedGlobalSymbols
 exports.NetTruyenInfo = {
@@ -6409,13 +6409,94 @@ exports.NetTruyenInfo = {
     author: 'haipham22',
     contentRating: types_1.ContentRating.MATURE,
     icon: 'icon.png',
-    version: '2.0.3',
+    version: '2.0.4',
     description: 'NetTruyen Tracker',
     websiteBaseURL: siteUrl,
     intents: types_1.SourceIntents.MANGA_CHAPTERS |
         types_1.SourceIntents.HOMEPAGE_SECTIONS |
         types_1.SourceIntents.CLOUDFLARE_BYPASS_REQUIRED,
 };
+class NetTruyen extends DefaultScrappy_1.DefaultScrappy {
+    constructor(cherrio) {
+        super(cherrio, siteUrl, new NetTruyenParser_1.NetTruyenParser(cherrio));
+    }
+    getHomeSection() {
+        return [
+            {
+                id: DefaultScrappy_1.HomePageType.FEATURED,
+                type: DefaultScrappy_1.HomeSectionType.singleRowNormal,
+                rootSelector: 'div.altcontent1',
+                title: 'Truyện đề cử',
+                containsMoreItems: false,
+            },
+            {
+                id: DefaultScrappy_1.HomePageType.HOT,
+                type: DefaultScrappy_1.HomeSectionType.singleRowNormal,
+                rootSelector: '.center-side',
+                title: 'Truyện đang hot',
+                containsMoreItems: true,
+                url: 'hot',
+            },
+            {
+                id: DefaultScrappy_1.HomePageType.NEW_UPDATED,
+                type: DefaultScrappy_1.HomeSectionType.singleRowNormal,
+                rootSelector: '.center-side',
+                title: 'Mới cập nhật',
+                containsMoreItems: true,
+            },
+        ];
+    }
+    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+    getViewMoreItems(homepageSectionId, metadata) {
+        const _super = Object.create(null, {
+            getViewMoreItems: { get: () => super.getViewMoreItems }
+        });
+        return __awaiter(this, void 0, void 0, function* () {
+            let url = '';
+            switch (homepageSectionId) {
+                case DefaultScrappy_1.HomePageType.HOT:
+                    url = 'hot';
+                    break;
+                case DefaultScrappy_1.HomePageType.FEATURED:
+                default:
+                    url = '';
+                    break;
+            }
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            return _super.getViewMoreItems.call(this, homepageSectionId, Object.assign(Object.assign({}, metadata), { url }));
+        });
+    }
+    getSearchResults(query, metadata) {
+        const _super = Object.create(null, {
+            getSearchResults: { get: () => super.getSearchResults }
+        });
+        return __awaiter(this, void 0, void 0, function* () {
+            return _super.getSearchResults.call(this, query, Object.assign(Object.assign({}, metadata), { url: 'tim-truyen', params: {
+                    keyword: query.title,
+                } }));
+        });
+    }
+    constructHeaders(headers = {}, _refererPath) {
+        return Object.assign(Object.assign({}, headers), { referer: `${this.siteUrl}/` });
+    }
+    getCloudflareBypassRequestAsync() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return App.createRequest({
+                url: this.siteUrl,
+                method: DefaultScrappy_1.HTTP_METHOD.GET,
+                headers: this.constructHeaders()
+            });
+        });
+    }
+}
+exports.NetTruyen = NetTruyen;
+
+},{"../DefaultScrappy":64,"./NetTruyenParser":66,"@paperback/types":61}],66:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.NetTruyenParser = void 0;
+const DefaultParser_1 = require("../DefaultParser");
 class NetTruyenParser extends DefaultParser_1.DefaultParser {
     constructor(_cherrio) {
         super(_cherrio);
@@ -6502,81 +6583,6 @@ class NetTruyenParser extends DefaultParser_1.DefaultParser {
     }
 }
 exports.NetTruyenParser = NetTruyenParser;
-class NetTruyen extends DefaultScrappy_1.DefaultScrappy {
-    constructor(cherrio) {
-        super(cherrio, siteUrl, new NetTruyenParser(cherrio));
-    }
-    getHomeSection() {
-        return [
-            {
-                id: DefaultScrappy_1.HomePageType.FEATURED,
-                type: DefaultScrappy_1.HomeSectionType.singleRowNormal,
-                rootSelector: 'div.altcontent1',
-                title: 'Truyện đề cử',
-                containsMoreItems: false,
-            },
-            {
-                id: DefaultScrappy_1.HomePageType.HOT,
-                type: DefaultScrappy_1.HomeSectionType.singleRowNormal,
-                rootSelector: '.center-side',
-                title: 'Truyện đang hot',
-                containsMoreItems: true,
-                url: 'hot',
-            },
-            {
-                id: DefaultScrappy_1.HomePageType.NEW_UPDATED,
-                type: DefaultScrappy_1.HomeSectionType.singleRowNormal,
-                rootSelector: '.center-side',
-                title: 'Mới cập nhật',
-                containsMoreItems: true,
-            },
-        ];
-    }
-    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-    getViewMoreItems(homepageSectionId, metadata) {
-        const _super = Object.create(null, {
-            getViewMoreItems: { get: () => super.getViewMoreItems }
-        });
-        return __awaiter(this, void 0, void 0, function* () {
-            let url = '';
-            switch (homepageSectionId) {
-                case DefaultScrappy_1.HomePageType.HOT:
-                    url = 'hot';
-                    break;
-                case DefaultScrappy_1.HomePageType.FEATURED:
-                default:
-                    url = '';
-                    break;
-            }
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            return _super.getViewMoreItems.call(this, homepageSectionId, Object.assign(Object.assign({}, metadata), { url }));
-        });
-    }
-    getSearchResults(query, metadata) {
-        const _super = Object.create(null, {
-            getSearchResults: { get: () => super.getSearchResults }
-        });
-        return __awaiter(this, void 0, void 0, function* () {
-            return _super.getSearchResults.call(this, query, Object.assign(Object.assign({}, metadata), { url: 'tim-truyen', params: {
-                    keyword: query.title,
-                } }));
-        });
-    }
-    constructHeaders(headers = {}, _refererPath) {
-        return Object.assign(Object.assign({}, headers), { referer: `${this.siteUrl}/` });
-    }
-    getCloudflareBypassRequestAsync() {
-        return __awaiter(this, void 0, void 0, function* () {
-            return App.createRequest({
-                url: this.siteUrl,
-                method: DefaultScrappy_1.HTTP_METHOD.GET,
-                headers: this.constructHeaders()
-            });
-        });
-    }
-}
-exports.NetTruyen = NetTruyen;
 
-},{"../DefaultParser":63,"../DefaultScrappy":64,"@paperback/types":61}]},{},[65])(65)
+},{"../DefaultParser":63}]},{},[65])(65)
 });
