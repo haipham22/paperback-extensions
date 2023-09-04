@@ -15,7 +15,7 @@ import { PartialSourceManga } from '@paperback/types/src/generated/Exports/Parti
 import { MangaInfo } from '@paperback/types/src/generated/_exports'
 import { Request } from '@paperback/types/src/generated/Exports/Request'
 
-const siteUrl = 'https://www.nettruyenmax.com'
+const siteUrl = 'https://www.nettruyenus.com'
 
 // noinspection JSUnusedGlobalSymbols
 export const NetTruyenInfo: SourceInfo = {
@@ -37,7 +37,7 @@ export class NetTruyenParser extends DefaultParser {
         super(_cherrio)
     }
 
-    override parserListManga($doc: CheerioAPI, contextBlockSelector?: string) {
+    override parserListManga($doc: CheerioAPI, contextBlockSelector?: string): PartialSourceManga[] {
         contextBlockSelector = !contextBlockSelector
             ? '.center-side'
             : contextBlockSelector
@@ -197,9 +197,11 @@ export class NetTruyen extends DefaultScrappy<NetTruyenParser>{
         })
     }
 
-    constructHeaders(headers?: any, refererPath?: string): any {
-        headers['referer'] = `${this.siteUrl}/${refererPath ?? ''}`
-        return headers
+    constructHeaders(headers: any = {}, _refererPath?: string): any {
+        return {
+            ...headers,
+            referer: `${this.siteUrl}/`
+        }
     }
 
     override async getCloudflareBypassRequestAsync(): Promise<Request> {
