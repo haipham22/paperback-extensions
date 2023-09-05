@@ -6156,9 +6156,26 @@ class DefaultParser {
     constructor(_cherrio) {
         this._cherrio = _cherrio;
     }
-    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-    parseRating(_$doc) {
-        return 10;
+    parserImg($doc, $el, useHttps = true) {
+        var _a;
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        let el = $doc('img');
+        if ($el) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            el = $doc('img', $el);
+        }
+        const link = (_a = (el.data('src') || el.data('original') || el.attr('src'))) === null || _a === void 0 ? void 0 : _a.trim();
+        if (link === '')
+            return 'https://i.imgur.com/GYUxEX8.png';
+        if ((link === null || link === void 0 ? void 0 : link.indexOf('https')) === -1 && useHttps) {
+            return 'https:' + link;
+        }
+        if ((link === null || link === void 0 ? void 0 : link.indexOf('http')) === -1) {
+            return 'http:' + link;
+        }
+        return link;
     }
     // time format 14:33 15/06
     convertTime(timeAgo, format = 'hh:mm DD/MM') {
@@ -6183,12 +6200,20 @@ class DefaultParser {
                 time = new Date(Date.now() - trimmed * 31556952000);
             }
             else {
-                time = (0, moment_1.default)(timeAgo, format).toDate();
+                const timeFormat = ['DD/MM/YYYY'];
+                timeFormat.push(format);
+                for (const tFormat of timeFormat) {
+                    if ((0, moment_1.default)(timeAgo, tFormat).isValid()) {
+                        time = (0, moment_1.default)(timeAgo, tFormat).toDate();
+                        break;
+                    }
+                }
             }
         }
         catch (err) {
             time = new Date();
         }
+        // @ts-ignore
         return time;
     }
 }
@@ -6356,6 +6381,7 @@ class DefaultScrappy extends lib_1.Source {
         return __awaiter(this, void 0, void 0, function* () {
             const $ = yield this.getRawHtml(App.createRequest({
                 url: mangaId,
+                // url: 'https://www.nettruyenus.com/truyen-tranh/dao-hai-tac-91690',
                 method: HTTP_METHOD.GET,
             }));
             const chapters = this.parser.parseChapterList($);
@@ -6409,7 +6435,7 @@ exports.NetTruyenInfo = {
     author: 'haipham22',
     contentRating: types_1.ContentRating.MATURE,
     icon: 'icon.png',
-    version: '2.0.4',
+    version: '2.0.5',
     description: 'NetTruyen Tracker',
     websiteBaseURL: siteUrl,
     intents: types_1.SourceIntents.MANGA_CHAPTERS |
@@ -6446,7 +6472,6 @@ class NetTruyen extends DefaultScrappy_1.DefaultScrappy {
             },
         ];
     }
-    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
     getViewMoreItems(homepageSectionId, metadata) {
         const _super = Object.create(null, {
             getViewMoreItems: { get: () => super.getViewMoreItems }
@@ -6532,15 +6557,15 @@ class NetTruyenParser extends DefaultParser_1.DefaultParser {
     parseChapterList($doc) {
         return $doc('.list-chapter li.row:not(.heading)')
             .map((_, $el) => {
-            var _a, _b, _c;
-            const index = Number((_a = $doc('a', $el)) === null || _a === void 0 ? void 0 : _a.data('id'));
-            const [, chapNum] = (((_b = $doc('a', $el)) === null || _b === void 0 ? void 0 : _b.text()) || '').split(' ');
+            var _a, _b;
+            const [tmpChapNum] = (((_a = $doc('.chapter a', $el)) === null || _a === void 0 ? void 0 : _a.text()) || '').split(':');
+            const [, chapNum] = (tmpChapNum || '').split(' ');
             return {
                 id: $doc('a', $el).attr('href'),
                 chapNum: Number(chapNum),
-                name: (_c = $doc('a', $el)) === null || _c === void 0 ? void 0 : _c.text(),
-                time: this.convertTime($doc('.col-xs-4', $el).text(), 'hh:mm DD/MM'),
-                sortingIndex: index,
+                name: (_b = $doc('a', $el)) === null || _b === void 0 ? void 0 : _b.text(),
+                time: this.convertTime($doc('.col-xs-4', $el).text()),
+                sortingIndex: Number(chapNum),
             };
         })
             .toArray();
