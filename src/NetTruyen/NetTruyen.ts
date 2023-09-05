@@ -20,7 +20,7 @@ export const NetTruyenInfo: SourceInfo = {
     author: 'haipham22',
     contentRating: ContentRating.MATURE,
     icon: 'icon.png',
-    version: '2.0.4',
+    version: '2.0.5',
     description: 'NetTruyen Tracker',
     websiteBaseURL: siteUrl,
     intents:
@@ -62,7 +62,6 @@ export class NetTruyen extends DefaultScrappy<NetTruyenParser>{
         ]
     }
 
-    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
     override async getViewMoreItems(
         homepageSectionId: string,
         metadata: any
@@ -126,4 +125,24 @@ export class NetTruyen extends DefaultScrappy<NetTruyenParser>{
     //
     //     })).toArray().map(i => App.createTagSection(i))
     // }
+
+    // async filterUpdatedManga(mangaUpdatesFoundCallback: (updates: MangaUpdates) => void, time: Date, ids: string[]): Promise<void> {
+    //     const updateManga = []
+    //     const pages = 10
+    //     for (let i = 1; i < pages + 1; i++) {
+    //         const $ = await this.getRawHtml(`${this.siteUrl}?page=${i}`)
+    //         for (const manga of $('div.item', 'div.row').toArray()) {
+    //             const id = $('figure.clearfix > div.image > a', manga).attr('href')?.split('/').pop()
+    //             const time = $('figure.clearfix > figcaption > ul > li.chapter:nth-of-type(1) > i', manga).last().text().trim()
+    //             updateManga.push(({
+    //                 id: id,
+    //                 time: time
+    //             }))
+    //         }
+    //     }
+    //
+    //     const returnObject = this.parser.parserListManga(updateManga, time, ids)
+    //     mangaUpdatesFoundCallback(createMangaUpdates(returnObject))
+    // }
+
 }
