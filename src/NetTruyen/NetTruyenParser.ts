@@ -46,14 +46,14 @@ export class NetTruyenParser extends DefaultParser {
     parseChapterList($doc: CheerioAPI): Chapter[] {
         return $doc('.list-chapter li.row:not(.heading)')
             .map((_, $el) => {
-                const index = Number($doc('a', $el)?.data('id'))
-                const [, chapNum] = ($doc('a', $el)?.text() || '').split(' ')
+                const [tmpChapNum] = ($doc('.chapter a', $el)?.text() || '').split(':')
+                const [, chapNum] = (tmpChapNum || '').split(' ')
                 return {
                     id: $doc('a', $el).attr('href'),
                     chapNum: Number(chapNum),
                     name: $doc('a', $el)?.text(),
-                    time: this.convertTime($doc('.col-xs-4', $el).text(), 'hh:mm DD/MM'),
-                    sortingIndex: index,
+                    time: this.convertTime($doc('.col-xs-4', $el).text()),
+                    sortingIndex: Number(chapNum),
                 } as Chapter
             })
             .toArray()
@@ -68,7 +68,7 @@ export class NetTruyenParser extends DefaultParser {
             .filter(Boolean)
     }
 
-    parserImg($doc: unknown, $el?: unknown, useHttps = true): string {
+    override parserImg($doc: unknown, $el?: unknown, useHttps = true): string {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
         let el = $doc('img')

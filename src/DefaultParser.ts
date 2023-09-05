@@ -13,12 +13,28 @@ export abstract class DefaultParser {
         contextBlockSelector?: string
     ): PartialSourceManga[];
 
-    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-    abstract parserImg($doc: unknown, $el?: unknown): string;
+    parserImg($doc: unknown, $el?: unknown, useHttps = true): string {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        let el = $doc('img')
 
-    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-    parseRating(_$doc: unknown) {
-        return 10
+        if ($el) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            el = $doc('img', $el)
+        }
+
+        const link = (el.data('src') || el.data('original') || el.attr('src'))?.trim()
+
+        if (link === '') return 'https://i.imgur.com/GYUxEX8.png'
+
+        if (link?.indexOf('https') === -1 && useHttps) {
+            return 'https:' + link
+        }
+        if (link?.indexOf('http') === -1) {
+            return 'http:' + link
+        }
+        return link
     }
 
     abstract parserMangaInfo($: CheerioAPI): MangaInfo;
@@ -40,11 +56,19 @@ export abstract class DefaultParser {
             } else if (timeAgo.includes('năm')) {
                 time = new Date(Date.now() - trimmed * 31556952000)
             } else {
-                time = moment(timeAgo, format).toDate()
+                const timeFormat = ['DD/MM/YYYY']
+                timeFormat.push(format)
+                for (const tFormat of timeFormat) {
+                    if (moment(timeAgo, tFormat).isValid()) {
+                        time = moment(timeAgo, tFormat).toDate()
+                        break
+                    }
+                }
             }
         } catch (err) {
             time = new Date()
         }
+        // @ts-ignore
         return time
     }
 

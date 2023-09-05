@@ -68,7 +68,7 @@ export abstract class DefaultScrappy<T extends DefaultParser> extends Source {
     protected constructor(
         cheerio: CheerioAPI,
         protected siteUrl: string,
-        private parser: T
+        protected parser: T
     ) {
         super(cheerio)
     }
@@ -211,6 +211,7 @@ export abstract class DefaultScrappy<T extends DefaultParser> extends Source {
     async getChapters(mangaId: string): Promise<Chapter[]> {
         const $ = await this.getRawHtml(App.createRequest({
             url: mangaId,
+            // url: 'https://www.nettruyenus.com/truyen-tranh/dao-hai-tac-91690',
             method: HTTP_METHOD.GET,
         }))
         const chapters = this.parser.parseChapterList($)
