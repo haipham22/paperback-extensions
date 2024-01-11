@@ -6428,7 +6428,7 @@ exports.NetTruyen = exports.NetTruyenInfo = void 0;
 const types_1 = require("@paperback/types");
 const DefaultScrappy_1 = require("../DefaultScrappy");
 const NetTruyenParser_1 = require("./NetTruyenParser");
-const siteUrl = 'https://www.nettruyenbing.com';
+const siteUrl = 'https://www.nettruyenclub.com';
 // noinspection JSUnusedGlobalSymbols
 exports.NetTruyenInfo = {
     name: 'NetTruyen',
