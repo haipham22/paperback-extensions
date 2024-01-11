@@ -12,7 +12,7 @@ import { CheerioAPI } from 'cheerio'
 import { Request } from '@paperback/types/src/generated/Exports/Request'
 import { NetTruyenParser } from './NetTruyenParser'
 
-const siteUrl = 'https://www.nettruyenbing.com'
+const siteUrl = 'https://www.nettruyenclub.com'
 
 // noinspection JSUnusedGlobalSymbols
 export const NetTruyenInfo: SourceInfo = {
