@@ -20,7 +20,7 @@ export const NetTruyenInfo: SourceInfo = {
     author: 'haipham22',
     contentRating: ContentRating.MATURE,
     icon: 'icon.png',
-    version: '2.0.6',
+    version: '2.0.7',
     description: 'NetTruyen Tracker',
     websiteBaseURL: siteUrl,
     intents:
