@@ -187,7 +187,7 @@ export abstract class DefaultScrappy<T extends DefaultParser> extends Source {
         metadata = !this.parser.isLastPage($) ? { page: page + 1 } : undefined
 
         return App.createPagedResults({
-            results: this.parser.parserListManga($)
+            results: this.parser.parserListManga($, metadata?.rootSelector)
                 .map((i) => App.createPartialSourceManga(i)),
             metadata,
         })
