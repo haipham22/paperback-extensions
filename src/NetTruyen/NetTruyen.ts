@@ -12,7 +12,7 @@ import { CheerioAPI } from 'cheerio'
 import { Request } from '@paperback/types/src/generated/Exports/Request'
 import { NetTruyenParser } from './NetTruyenParser'
 
-const siteUrl = 'https://www.nettruyentt.com'
+const siteUrl = 'https://www.nettruyenamp.com'
 
 // noinspection JSUnusedGlobalSymbols
 export const NetTruyenInfo: SourceInfo = {
@@ -20,7 +20,7 @@ export const NetTruyenInfo: SourceInfo = {
     author: 'haipham22',
     contentRating: ContentRating.MATURE,
     icon: 'icon.png',
-    version: '2.0.11',
+    version: '2.0.12',
     description: 'NetTruyen Tracker',
     websiteBaseURL: siteUrl,
     intents:
