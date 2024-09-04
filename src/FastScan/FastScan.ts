@@ -31,7 +31,7 @@ export const FastScanInfo: SourceInfo = {
         SourceIntents.CLOUDFLARE_BYPASS_REQUIRED,
 }
 
-export class {
+export class FastScan {
 
     private readonly siteUrl: string
 
