@@ -5,11 +5,11 @@ import { Chapter,
     PagedResults,
     Source,
     SearchRequest,
+    SourceInterceptor,
     Request,
     Response,
     SourceManga } from '@paperback/types'
 import { DefaultParser } from './DefaultParser'
-import { SourceInterceptor } from '@paperback/types/src/generated/_exports'
 
 export interface SectionBlock extends Omit<HomeSection, 'items' | 'id'> {
     rootSelector?: string;
