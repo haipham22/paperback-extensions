@@ -1,16 +1,15 @@
 import { CheerioAPI } from 'cheerio'
-import {
-    Chapter,
+import { Chapter,
     ChapterDetails,
     HomeSection,
     PagedResults,
+    Source,
     SearchRequest,
-    SourceManga,
-} from '@paperback/types'
+    Request,
+    Response,
+    SourceManga } from '@paperback/types'
 import { DefaultParser } from './DefaultParser'
-import { Request } from '@paperback/types/src/generated/Exports/Request'
 import { SourceInterceptor } from '@paperback/types/src/generated/_exports'
-import { Source } from '@paperback/types/lib'
 
 export interface SectionBlock extends Omit<HomeSection, 'items' | 'id'> {
     rootSelector?: string;
@@ -41,8 +40,7 @@ export enum HTTP_METHOD {
 
 export class ScrappyRequestInterceptor implements SourceInterceptor {
     constructor(private readonly siteUrl: string) {}
-
-    interceptRequest(request: Request): Promise<Request> {
+    interceptRequest=  async (request: Request): Promise<Request> => {
         request.headers = {
             ...(request.headers ?? {}),
             ...{
@@ -50,16 +48,9 @@ export class ScrappyRequestInterceptor implements SourceInterceptor {
             },
         }
 
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
         return request
     }
-
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    interceptResponse(response: Response): Promise<Response> {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
+    interceptResponse = async (response: Response): Promise<Response> =>{
         return response
     }
 }
@@ -211,7 +202,6 @@ export abstract class DefaultScrappy<T extends DefaultParser> extends Source {
     async getChapters(mangaId: string): Promise<Chapter[]> {
         const $ = await this.getRawHtml(App.createRequest({
             url: mangaId,
-            // url: 'https://www.nettruyenus.com/truyen-tranh/dao-hai-tac-91690',
             method: HTTP_METHOD.GET,
         }))
         const chapters = this.parser.parseChapterList($)
