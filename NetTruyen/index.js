@@ -6232,7 +6232,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DefaultScrappy = exports.ScrappyRequestInterceptor = exports.HTTP_METHOD = exports.HomeSectionType = exports.HomePageType = void 0;
-const lib_1 = require("@paperback/types/lib");
+const types_1 = require("@paperback/types");
 var HomePageType;
 (function (HomePageType) {
     HomePageType["FEATURED"] = "FEATURED";
@@ -6256,26 +6256,20 @@ var HTTP_METHOD;
 class ScrappyRequestInterceptor {
     constructor(siteUrl) {
         this.siteUrl = siteUrl;
-    }
-    interceptRequest(request) {
-        var _a;
-        request.headers = Object.assign(Object.assign({}, ((_a = request.headers) !== null && _a !== void 0 ? _a : {})), {
-            referer: this.siteUrl + '/',
+        this.interceptRequest = (request) => __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            request.headers = Object.assign(Object.assign({}, ((_a = request.headers) !== null && _a !== void 0 ? _a : {})), {
+                referer: this.siteUrl + '/',
+            });
+            return request;
         });
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        return request;
-    }
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    interceptResponse(response) {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        return response;
+        this.interceptResponse = (response) => __awaiter(this, void 0, void 0, function* () {
+            return response;
+        });
     }
 }
 exports.ScrappyRequestInterceptor = ScrappyRequestInterceptor;
-class DefaultScrappy extends lib_1.Source {
+class DefaultScrappy extends types_1.Source {
     constructor(cheerio, siteUrl, parser) {
         super(cheerio);
         this.siteUrl = siteUrl;
@@ -6381,7 +6375,6 @@ class DefaultScrappy extends lib_1.Source {
         return __awaiter(this, void 0, void 0, function* () {
             const $ = yield this.getRawHtml(App.createRequest({
                 url: mangaId,
-                // url: 'https://www.nettruyenus.com/truyen-tranh/dao-hai-tac-91690',
                 method: HTTP_METHOD.GET,
             }));
             const chapters = this.parser.parseChapterList($);
@@ -6412,7 +6405,7 @@ class DefaultScrappy extends lib_1.Source {
 }
 exports.DefaultScrappy = DefaultScrappy;
 
-},{"@paperback/types/lib":61}],65:[function(require,module,exports){
+},{"@paperback/types":61}],65:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -6428,7 +6421,7 @@ exports.NetTruyen = exports.NetTruyenInfo = void 0;
 const types_1 = require("@paperback/types");
 const DefaultScrappy_1 = require("../DefaultScrappy");
 const NetTruyenParser_1 = require("./NetTruyenParser");
-const siteUrl = 'https://nettruyencc.com';
+const siteUrl = 'https://nettruyenhe.com';
 // noinspection JSUnusedGlobalSymbols
 exports.NetTruyenInfo = {
     name: 'NetTruyen',
